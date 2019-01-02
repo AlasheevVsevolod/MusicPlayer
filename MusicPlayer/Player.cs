@@ -106,15 +106,16 @@ namespace MusicPlayer
 					{
 						foreach (var song in Songs)
 						{
-							Console.WriteLine($"Playing: {song.Name}, duration: {song.Duration}\n");
-							System.Threading.Thread.Sleep(1000);
+							Console.WriteLine($"Playing: {song.Name}, duration: {song.Duration}");
+							System.Threading.Thread.Sleep(500);
 						}
+						Console.WriteLine();
 					}
 					else
 					{
 						_playing = true;
-						Console.WriteLine($"Playing: {Songs.First().Name}, duration: {Songs.First().Duration}\n");
-						System.Threading.Thread.Sleep(1000);
+						Console.WriteLine($"Playing: {Songs.First().Name}, duration: {Songs.First().Duration}");
+						System.Threading.Thread.Sleep(500);
 					}
 				}
 				catch (System.InvalidOperationException)
@@ -199,7 +200,7 @@ namespace MusicPlayer
 
 		public void Shuffle()
 		{
-			var newList = new List<Song>();
+			var tmpList = new List<Song>();
 
 			var rand = new Random();
 			int randSongNum, cntr = Songs.Count;
@@ -207,10 +208,37 @@ namespace MusicPlayer
 			for (int i = 0; i < cntr; i++)
 			{
 				randSongNum = rand.Next(Songs.Count);
-				newList.Add(Songs.ElementAt(randSongNum));
+				tmpList.Add(Songs.ElementAt(randSongNum));
 				Songs.RemoveAt(randSongNum);
 			}
-			Songs = newList;
+			Songs = tmpList;
+		}
+
+		public void SortByTitle()
+		{
+			var tmpList = new List<Song>();
+			var songNameList = new List<string>();
+			int cntr = Songs.Capacity;
+
+			foreach (var song in Songs)
+			{
+				songNameList.Add(song.Name);
+			}
+			songNameList.Sort();
+
+			foreach (var songName in songNameList)
+			{
+				for (int i = 0; i < cntr; i++)
+				{
+					if (Songs.ElementAt(i).Name == songName)
+					{
+						tmpList.Add(Songs.ElementAt(i));
+						Songs.RemoveAt(i);
+						break;
+					}
+				}
+			}
+			Songs = tmpList;
 		}
 	}
 }

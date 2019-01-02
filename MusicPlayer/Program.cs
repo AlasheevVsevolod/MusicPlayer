@@ -30,7 +30,7 @@ namespace MusicPlayer
 			player.Add(CreateSong("Luxtos", 346, "Eluveitie", "Folk Metal", "Helvetios", 2012));
 			player.Add(CreateSong("A Rose For Epona", 267, "Eluveitie", "Folk Metal", "Helvetios", 2012));
 			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", "Folk Metal", "Slania", 2008));
-			player.Start(true);
+//			player.Start(true);
 			player.Start();
 
 			var songsArr = new Song[3];
@@ -42,19 +42,20 @@ namespace MusicPlayer
 
 			player.ShowAllSongsName();
 
-			player.Shuffle();
 			Console.WriteLine("Shuffled list:");
-			player.ShowAllSongsName();
+			player.Shuffle();
+			player.Start(true);
 
+			Console.WriteLine("Sorted list:");
+			player.SortByTitle();
+			player.Start(true);
 
-
+			Console.WriteLine("Shuffled list:");
+			player.Shuffle();
+			player.Start(true);
 
 			Console.ReadLine();
 		}
-
-
-
-
 
 
 		public static Song GetSongsData()
