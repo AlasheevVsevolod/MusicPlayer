@@ -96,18 +96,30 @@ namespace MusicPlayer
 			}
 		}
 
-		public bool Start()
+		public bool Start(bool loop = false)
 		{
 			if(!_locked)
 			{
-				if (Songs.First() == null)
+				try
 				{
-					Console.WriteLine($"Плейлист пустой. Добавьте песни");
+					if (loop)
+					{
+						foreach (var song in Songs)
+						{
+							Console.WriteLine($"Playing: {song.Name}, duration: {song.Duration}\n");
+							System.Threading.Thread.Sleep(1000);
+						}
+					}
+					else
+					{
+						_playing = true;
+						Console.WriteLine($"Playing: {Songs.First().Name}, duration: {Songs.First().Duration}\n");
+						System.Threading.Thread.Sleep(1000);
+					}
 				}
-				else
+				catch (System.InvalidOperationException)
 				{
-					_playing = true;
-					Console.WriteLine($"Воспроизведение: {Songs.First().Name}");
+					Console.WriteLine($"Плейлист пустой. Добавьте песни\n");
 				}
 			}
 			else
@@ -174,6 +186,31 @@ namespace MusicPlayer
 				Console.WriteLine($"№{songNumber++}");
 				SongInfo(song);
 			}
+		}
+
+		public void ShowAllSongsName()
+		{
+			foreach (var song in Songs)
+			{
+				Console.WriteLine($"Song: {song.Name}");
+			}
+			Console.WriteLine();
+		}
+
+		public void Shuffle()
+		{
+			var newList = new List<Song>();
+
+			var rand = new Random();
+			int randSongNum, cntr = Songs.Count;
+
+			for (int i = 0; i < cntr; i++)
+			{
+				randSongNum = rand.Next(Songs.Count);
+				newList.Add(Songs.ElementAt(randSongNum));
+				Songs.RemoveAt(randSongNum);
+			}
+			Songs = newList;
 		}
 	}
 }

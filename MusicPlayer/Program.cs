@@ -12,13 +12,17 @@ namespace MusicPlayer
 		{
 			var player = new Player();
 
+			player.Start();
+
 			player.Add(GetSongsData());
+
 
 			player.Add(CreateSong("Sahti"));
 			player.Add(CreateSong("Kunnia"));
 			player.Add(CreateSong("Ievan Polkka"));
 
 			player.Add(CreateSong("Uptown Funk", 123, "Bruno Mars", "Pop", "Uptown Funk", 2015));
+			player.Start();
 
 			player.Add(CreateSong("Her Ghost", 174, "Dance With The Dead", "Electronic", "The Shape", 2016));
 			player.Add(CreateSong("Robeast", 234, "Dance With The Dead", "Synthwave", "Out Of Body", 2013));
@@ -26,7 +30,8 @@ namespace MusicPlayer
 			player.Add(CreateSong("Luxtos", 346, "Eluveitie", "Folk Metal", "Helvetios", 2012));
 			player.Add(CreateSong("A Rose For Epona", 267, "Eluveitie", "Folk Metal", "Helvetios", 2012));
 			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", "Folk Metal", "Slania", 2008));
-
+			player.Start(true);
+			player.Start();
 
 			var songsArr = new Song[3];
 			for (int i = 0; i < songsArr.Length; i++)
@@ -35,8 +40,11 @@ namespace MusicPlayer
 			}
 			player.Add(songsArr);
 
-			player.ShowAllSongs();
+			player.ShowAllSongsName();
 
+			player.Shuffle();
+			Console.WriteLine("Shuffled list:");
+			player.ShowAllSongsName();
 
 
 
@@ -84,7 +92,7 @@ namespace MusicPlayer
 			var tmpAlbumName = Convert.ToString((char)rand.Next((int)'A', (int)'Z'));
 			var tmpAlbumYear = rand.Next(1980, DateTime.Today.Year);
 
-			System.Threading.Thread.Sleep(10);
+			System.Threading.Thread.Sleep(20);
 
 			return CreateSong(tmpSongName, tmpDuration, tmpArtistName, tmpArtistGenre, tmpAlbumName, tmpAlbumYear);
 		}
@@ -100,6 +108,8 @@ namespace MusicPlayer
 
 			var tmpAlbumName = "Default Album";
 			var tmpAlbumYear = rand.Next(1980, DateTime.Today.Year);
+
+			System.Threading.Thread.Sleep(20);
 
 			return CreateSong(SongName, tmpDuration, tmpArtistName, tmpArtistGenre, tmpAlbumName, tmpAlbumYear);
 		}
