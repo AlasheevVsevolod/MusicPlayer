@@ -47,18 +47,7 @@ namespace MusicPlayer
 			}
 		}
 
-		public Song[] Songs;
-		public Song[] NewSongList = new Song[5];
-		public Song[] AddSongs(out int NumOfSongs, params Song[] NewSongs)
-		{
-			NumOfSongs = 0;
-			foreach(Song NewSong in NewSongs)
-			{
-				NewSongList[NumOfSongs++] = NewSong;
-			}
-			return NewSongList;
-		}
-		
+		public List<Song> Songs { get; private set; } = new List<Song>();
 
 
 		public void VolumeUp()
@@ -111,8 +100,15 @@ namespace MusicPlayer
 		{
 			if(!_locked)
 			{
-				_playing = true;
-				Console.WriteLine($"Воспроизведение: {Songs[0].Name}");
+				if (Songs.First() == null)
+				{
+					Console.WriteLine($"Плейлист пустой. Добавьте песни");
+				}
+				else
+				{
+					_playing = true;
+					Console.WriteLine($"Воспроизведение: {Songs.First().Name}");
+				}
 			}
 			else
 			{
@@ -150,6 +146,34 @@ namespace MusicPlayer
 		private void BlockVolumeChange()
 		{
 			Console.WriteLine("Нельзя изменить громкость. Плеер заблокирован");
+		}
+
+		public void Add(params Song[] arrOfSongs)
+		{
+			foreach (var songItem in arrOfSongs)
+			{
+				Songs.Add(songItem);
+			}
+		}
+
+		public void SongInfo(Song CurrentSong)
+		{
+			Console.WriteLine($"Artist: {CurrentSong.Artist.Name}");
+			Console.WriteLine($"Song: {CurrentSong.Name}");
+			Console.WriteLine($"Duration: {CurrentSong.Duration}");
+			Console.WriteLine($"Album: {CurrentSong.Album.Name}");
+			Console.WriteLine($"Year: {CurrentSong.Album.Year}");
+			Console.WriteLine($"Genre: {CurrentSong.Artist.Genre}\n");
+		}
+
+		public void ShowAllSongs()
+		{
+			int songNumber = 1;
+			foreach (var song in Songs)
+			{
+				Console.WriteLine($"№{songNumber++}");
+				SongInfo(song);
+			}
 		}
 	}
 }
