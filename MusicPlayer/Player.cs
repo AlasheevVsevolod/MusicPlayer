@@ -47,18 +47,7 @@ namespace MusicPlayer
 			}
 		}
 
-		public Song[] Songs;
-		public Song[] NewSongList = new Song[5];
-		public Song[] AddSongs(out int NumOfSongs, params Song[] NewSongs)
-		{
-			NumOfSongs = 0;
-			foreach(Song NewSong in NewSongs)
-			{
-				NewSongList[NumOfSongs++] = NewSong;
-			}
-			return NewSongList;
-		}
-		
+		public List<Song> Songs { get; private set; } = new List<Song>();
 
 
 		public void VolumeUp()
@@ -107,12 +96,32 @@ namespace MusicPlayer
 			}
 		}
 
-		public bool Start()
+		public bool Start(bool loop = false)
 		{
 			if(!_locked)
 			{
-				_playing = true;
-				Console.WriteLine($"Воспроизведение: {Songs[0].Name}");
+				try
+				{
+					if (loop)
+					{
+						foreach (var song in Songs)
+						{
+							Console.WriteLine($"Playing: {song.Name}, duration: {song.Duration}");
+							System.Threading.Thread.Sleep(500);
+						}
+						Console.WriteLine();
+					}
+					else
+					{
+						_playing = true;
+						Console.WriteLine($"Playing: {Songs.First().Name}, duration: {Songs.First().Duration}");
+						System.Threading.Thread.Sleep(500);
+					}
+				}
+				catch (System.InvalidOperationException)
+				{
+					Console.WriteLine($"Плейлист пустой. Добавьте песни\n");
+				}
 			}
 			else
 			{
@@ -150,6 +159,86 @@ namespace MusicPlayer
 		private void BlockVolumeChange()
 		{
 			Console.WriteLine("Нельзя изменить громкость. Плеер заблокирован");
+		}
+
+		public void Add(params Song[] arrOfSongs)
+		{
+			foreach (var songItem in arrOfSongs)
+			{
+				Songs.Add(songItem);
+			}
+		}
+
+		public void SongInfo(Song CurrentSong)
+		{
+			Console.WriteLine($"Artist: {CurrentSong.Artist.Name}");
+			Console.WriteLine($"Song: {CurrentSong.Name}");
+			Console.WriteLine($"Duration: {CurrentSong.Duration}");
+			Console.WriteLine($"Album: {CurrentSong.Album.Name}");
+			Console.WriteLine($"Year: {CurrentSong.Album.Year}");
+			Console.WriteLine($"Genre: {CurrentSong.Artist.Genre}\n");
+		}
+
+		public void ShowAllSongs()
+		{
+			int songNumber = 1;
+			foreach (var song in Songs)
+			{
+				Console.WriteLine($"№{songNumber++}");
+				SongInfo(song);
+			}
+		}
+
+		public void ShowAllSongsName()
+		{
+			foreach (var song in Songs)
+			{
+				Console.WriteLine($"Song: {song.Name}");
+			}
+			Console.WriteLine();
+		}
+
+		public void Shuffle()
+		{
+			var tmpList = new List<Song>();
+
+			var rand = new Random();
+			int randSongNum, cntr = Songs.Count;
+
+			for (int i = 0; i < cntr; i++)
+			{
+				randSongNum = rand.Next(Songs.Count);
+				tmpList.Add(Songs.ElementAt(randSongNum));
+				Songs.RemoveAt(randSongNum);
+			}
+			Songs = tmpList;
+		}
+
+		public void SortByTitle()
+		{
+			var tmpList = new List<Song>();
+			var songNameList = new List<string>();
+			int cntr = Songs.Capacity;
+
+			foreach (var song in Songs)
+			{
+				songNameList.Add(song.Name);
+			}
+			songNameList.Sort();
+
+			foreach (var songName in songNameList)
+			{
+				for (int i = 0; i < cntr; i++)
+				{
+					if (Songs.ElementAt(i).Name == songName)
+					{
+						tmpList.Add(Songs.ElementAt(i));
+						Songs.RemoveAt(i);
+						break;
+					}
+				}
+			}
+			Songs = tmpList;
 		}
 	}
 }
