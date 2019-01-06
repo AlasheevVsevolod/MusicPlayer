@@ -218,7 +218,7 @@ namespace MusicPlayer
 		{
 			var tmpList = new List<Song>();
 			var songNameList = new List<string>();
-			int cntr = Songs.Capacity;
+			int cntr = Songs.Count;
 
 			foreach (var song in Songs)
 			{
