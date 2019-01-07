@@ -61,12 +61,12 @@ namespace MusicPlayer
 
 	public enum Genres
 	{
-		Undefined = 0b00000000,
-		Rock = 0b00000001,
-		Metal = 0b00000010,
-		Synthwave = 0b00000100,
-		Electronic = 0b00001000,
-		Folk = 0b00010000,
-		Pop = 0b00100000,
+		Undefined		= 0b00000000,
+		Rock				= 0b00000001,
+		Metal				= 0b00000010,
+		Synthwave		= 0b00000100,
+		Electronic	= 0b00001000,
+		Folk				= 0b00010000,
+		Pop					= 0b00100000,
 	};
 }
