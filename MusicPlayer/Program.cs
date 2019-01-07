@@ -26,12 +26,12 @@ namespace MusicPlayer
 			player.Start();
 
 			player.Add(CreateSong("Her Ghost", 174, "Dance With The Dead", 
-			Genres.Electronic | Genres.Synthwave | Genres.Rock, "The Shape", 2016, true));
+			Genres.Electronic | Genres.Synthwave | Genres.Rock, "The Shape", 2016));
 			player.Add(CreateSong("Robeast", 234, "Dance With The Dead", 
 			Genres.Electronic | Genres.Synthwave, "Out Of Body", 2013, true));
 
 			player.Add(CreateSong("Luxtos", 346, "Eluveitie", Genres.Folk | Genres.Metal, 
-			"Helvetios", 2012, false));
+			"Helvetios", 2012));
 			player.Add(CreateSong("A Rose For Epona", 267, "Eluveitie", Genres.Folk, "Helvetios", 
 			2012, false));
 			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", Genres.Folk | Genres.Rock, "Slania", 
