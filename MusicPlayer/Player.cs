@@ -263,8 +263,9 @@ namespace MusicPlayer
 			{
 				Console.ForegroundColor = ConsoleColor.Red;
 			}
-			Console.WriteLine($"Playing: {tmpSong.Name}, duration: {tmpSong.Duration}");
-			Console.ForegroundColor = ConsoleColor.Gray;
+			Console.WriteLine($"Playing: {tmpSong.Name}\nGenre: {tmpSong.Artist.Genre}\n" +
+	 $"Duration: {tmpSong.Duration}\n");
+			Console.ResetColor();
 		}
 	}
 }
