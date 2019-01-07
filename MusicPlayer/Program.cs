@@ -21,15 +21,15 @@ namespace MusicPlayer
 			player.Add(CreateSong("Kunnia"));
 			player.Add(CreateSong("Ievan Polkka"));
 
-			player.Add(CreateSong("Uptown Funk", 123, "Bruno Mars", "Pop", "Uptown Funk", 2015));
+			player.Add(CreateSong("Uptown Funk", 123, "Bruno Mars", "Pop", "Uptown Funk", 2015, false));
 			player.Start();
 
-			player.Add(CreateSong("Her Ghost", 174, "Dance With The Dead", "Electronic", "The Shape", 2016));
-			player.Add(CreateSong("Robeast", 234, "Dance With The Dead", "Synthwave", "Out Of Body", 2013));
+			player.Add(CreateSong("Her Ghost", 174, "Dance With The Dead", "Electronic", "The Shape", 2016, true));
+			player.Add(CreateSong("Robeast", 234, "Dance With The Dead", "Synthwave", "Out Of Body", 2013, true));
 
-			player.Add(CreateSong("Luxtos", 346, "Eluveitie", "Folk Metal", "Helvetios", 2012));
-			player.Add(CreateSong("A Rose For Epona", 267, "Eluveitie", "Folk Metal", "Helvetios", 2012));
-			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", "Folk Metal", "Slania", 2008));
+			player.Add(CreateSong("Luxtos", 346, "Eluveitie", "Folk Metal", "Helvetios", 2012, false));
+			player.Add(CreateSong("A Rose For Epona", 267, "Eluveitie", "Folk Metal", "Helvetios", 2012, false));
+			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", "Folk Metal", "Slania", 2008, true));
 //			player.Start(true);
 			player.Start();
 
@@ -116,7 +116,7 @@ namespace MusicPlayer
 		}
 
 		public static Song CreateSong(string SongName, int SongDuration, string ArtistName,
-		string ArtistGenre, string AlbumName, int AlbumYear)
+		string ArtistGenre, string AlbumName, int AlbumYear, bool? Like = null)
 		{
 			var ExplicitSong = new Song()
 			{
@@ -131,7 +131,8 @@ namespace MusicPlayer
 					Genre = ArtistGenre,
 					Name = ArtistName
 				},
-				Name = SongName
+				Name = SongName,
+				Like = Like
 			};
 
 			return ExplicitSong;

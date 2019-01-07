@@ -106,7 +106,7 @@ namespace MusicPlayer
 					{
 						foreach (var song in Songs)
 						{
-							Console.WriteLine($"Playing: {song.Name}, duration: {song.Duration}");
+							PrintColoredSong(song);
 							System.Threading.Thread.Sleep(500);
 						}
 						Console.WriteLine();
@@ -114,7 +114,7 @@ namespace MusicPlayer
 					else
 					{
 						_playing = true;
-						Console.WriteLine($"Playing: {Songs.First().Name}, duration: {Songs.First().Duration}");
+						PrintColoredSong(Songs.First());
 						System.Threading.Thread.Sleep(500);
 					}
 				}
@@ -176,7 +176,19 @@ namespace MusicPlayer
 			Console.WriteLine($"Duration: {CurrentSong.Duration}");
 			Console.WriteLine($"Album: {CurrentSong.Album.Name}");
 			Console.WriteLine($"Year: {CurrentSong.Album.Year}");
-			Console.WriteLine($"Genre: {CurrentSong.Artist.Genre}\n");
+			Console.WriteLine($"Genre: {CurrentSong.Artist.Genre}");
+			if (CurrentSong.Like == null)
+			{
+				Console.WriteLine($"Liked: undefined\n");
+			}
+			else if (CurrentSong.Like == true)
+			{
+				Console.WriteLine($"Liked: yes\n");
+			}
+			else
+			{
+				Console.WriteLine($"Liked: no\n");
+			}
 		}
 
 		public void ShowAllSongs()
@@ -239,6 +251,20 @@ namespace MusicPlayer
 				}
 			}
 			Songs = tmpList;
+		}
+
+		private void PrintColoredSong(Song tmpSong)
+		{
+			if (tmpSong.Like == true)
+			{
+				Console.ForegroundColor = ConsoleColor.Green;
+			}
+			else if (tmpSong.Like == false)
+			{
+				Console.ForegroundColor = ConsoleColor.Red;
+			}
+			Console.WriteLine($"Playing: {tmpSong.Name}, duration: {tmpSong.Duration}");
+			Console.ForegroundColor = ConsoleColor.Gray;
 		}
 	}
 }
