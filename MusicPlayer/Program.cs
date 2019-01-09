@@ -21,15 +21,21 @@ namespace MusicPlayer
 			player.Add(CreateSong("Kunnia"));
 			player.Add(CreateSong("Ievan Polkka"));
 
-			player.Add(CreateSong("Uptown Funk", 123, "Bruno Mars", "Pop", "Uptown Funk", 2015));
+			player.Add(CreateSong("Uptown Funk", 123, "Bruno Mars", Genres.Pop, "Uptown Funk", 
+			2015, false));
 			player.Start();
 
-			player.Add(CreateSong("Her Ghost", 174, "Dance With The Dead", "Electronic", "The Shape", 2016));
-			player.Add(CreateSong("Robeast", 234, "Dance With The Dead", "Synthwave", "Out Of Body", 2013));
+			player.Add(CreateSong("Her Ghost", 174, "Dance With The Dead", 
+			Genres.Electronic | Genres.Synthwave | Genres.Rock, "The Shape", 2016));
+			player.Add(CreateSong("Robeast", 234, "Dance With The Dead", 
+			Genres.Electronic | Genres.Synthwave, "Out Of Body", 2013, true));
 
-			player.Add(CreateSong("Luxtos", 346, "Eluveitie", "Folk Metal", "Helvetios", 2012));
-			player.Add(CreateSong("A Rose For Epona", 267, "Eluveitie", "Folk Metal", "Helvetios", 2012));
-			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", "Folk Metal", "Slania", 2008));
+			player.Add(CreateSong("Luxtos", 346, "Eluveitie", Genres.Folk | Genres.Metal, 
+			"Helvetios", 2012));
+			player.Add(CreateSong("A Rose For Epona", 267, "Eluveitie", Genres.Folk, "Helvetios", 
+			2012, false));
+			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", Genres.Folk | Genres.Rock, "Slania", 
+			2008, true));
 //			player.Start(true);
 			player.Start();
 
@@ -88,14 +94,13 @@ namespace MusicPlayer
 			var tmpDuration = rand.Next(60, 301);
 
 			var tmpArtistName = Convert.ToString((char)rand.Next((int)'A', (int)'Z'));
-			var tmpArtistGenre = Convert.ToString((char)rand.Next((int)'A', (int)'Z'));
 
 			var tmpAlbumName = Convert.ToString((char)rand.Next((int)'A', (int)'Z'));
 			var tmpAlbumYear = rand.Next(1980, DateTime.Today.Year);
 
 			System.Threading.Thread.Sleep(20);
 
-			return CreateSong(tmpSongName, tmpDuration, tmpArtistName, tmpArtistGenre, tmpAlbumName, tmpAlbumYear);
+			return CreateSong(tmpSongName, tmpDuration, tmpArtistName, 0, tmpAlbumName, tmpAlbumYear);
 		}
 
 		public static Song CreateSong(string SongName)
@@ -105,18 +110,17 @@ namespace MusicPlayer
 			var tmpDuration = rand.Next(60, 301);
 
 			var tmpArtistName = "Drfault Artist";
-			var tmpArtistGenre = "Default Genre";
 
 			var tmpAlbumName = "Default Album";
 			var tmpAlbumYear = rand.Next(1980, DateTime.Today.Year);
 
 			System.Threading.Thread.Sleep(20);
 
-			return CreateSong(SongName, tmpDuration, tmpArtistName, tmpArtistGenre, tmpAlbumName, tmpAlbumYear);
+			return CreateSong(SongName, tmpDuration, tmpArtistName, 0, tmpAlbumName, tmpAlbumYear);
 		}
 
 		public static Song CreateSong(string SongName, int SongDuration, string ArtistName,
-		string ArtistGenre, string AlbumName, int AlbumYear)
+		Genres ArtistGenre, string AlbumName, int AlbumYear, bool? Like = null)
 		{
 			var ExplicitSong = new Song()
 			{
@@ -128,11 +132,12 @@ namespace MusicPlayer
 				},
 				Artist = new Artist()
 				{
-					Genre = ArtistGenre,
 					Name = ArtistName
 				},
-				Name = SongName
+				Name = SongName,
+				Like = Like
 			};
+			ExplicitSong.Artist.Genre = ExplicitSong.Artist.GetArtistGenre(ArtistGenre);
 
 			return ExplicitSong;
 		}
