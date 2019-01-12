@@ -242,8 +242,10 @@ namespace MusicPlayer
 
 		private Song SongShorten(Song srcSong)
 		{
+	  const int stringLimit = 10;
+
 			Song tmpSong = srcSong;
-			tmpSong.Name = tmpSong.Name.StringShorten(10);
+			tmpSong.Name = tmpSong.Name.StringShorten(stringLimit);
 
 			return tmpSong;
 		}
