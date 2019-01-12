@@ -50,5 +50,14 @@ namespace MusicPlayer.Extensions
 			}
 			return tmpList;
 		}
+
+		public static string StringShorten(this string tmpstr, int stringSize)
+		{
+			if (tmpstr.Length > stringSize)
+			{
+				return tmpstr.Substring(0, stringSize) + "...";
+			}
+			return tmpstr;
+		}
 	}
 }

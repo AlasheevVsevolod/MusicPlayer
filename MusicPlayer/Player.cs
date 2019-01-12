@@ -172,6 +172,7 @@ namespace MusicPlayer
 
 		public void SongInfo(Song CurrentSong)
 		{
+			Song songToPrint = SongShorten(CurrentSong);
 			Console.WriteLine($"Artist: {CurrentSong.Artist.Name}");
 			Console.WriteLine($"Song: {CurrentSong.Name}");
 			Console.WriteLine($"Duration: {CurrentSong.Duration}");
@@ -206,6 +207,7 @@ namespace MusicPlayer
 		{
 			foreach (var song in Songs)
 			{
+				Song songToPrint = SongShorten(song);
 				Console.WriteLine($"Song: {song.Name}");
 			}
 			Console.WriteLine();
@@ -231,9 +233,19 @@ namespace MusicPlayer
 			{
 				Console.ForegroundColor = ConsoleColor.Red;
 			}
-			Console.WriteLine($"Playing: {tmpSong.Name}\nGenre: {tmpSong.Artist.Genre}\n" +
-	 $"Duration: {tmpSong.Duration}\n");
+
+			Song songToPrint = SongShorten(tmpSong);
+			Console.WriteLine($"Playing: {songToPrint.Name}\nGenre: {songToPrint.Artist.Genre}\n" +
+	 $"Duration: {songToPrint.Duration}\n");
 			Console.ResetColor();
+		}
+
+		private Song SongShorten(Song srcSong)
+		{
+			Song tmpSong = srcSong;
+			tmpSong.Name = tmpSong.Name.StringShorten(10);
+
+			return tmpSong;
 		}
 	}
 }
