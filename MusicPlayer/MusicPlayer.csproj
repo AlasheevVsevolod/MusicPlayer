@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Album.cs" />
     <Compile Include="Artist.cs" />
+    <Compile Include="Extensions\SongExtensions.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -53,5 +54,6 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

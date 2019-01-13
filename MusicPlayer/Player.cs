@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MusicPlayer.Extensions;
 
 namespace MusicPlayer
 {
@@ -171,6 +172,7 @@ namespace MusicPlayer
 
 		public void SongInfo(Song CurrentSong)
 		{
+			Song songToPrint = SongShorten(CurrentSong);
 			Console.WriteLine($"Artist: {CurrentSong.Artist.Name}");
 			Console.WriteLine($"Song: {CurrentSong.Name}");
 			Console.WriteLine($"Duration: {CurrentSong.Duration}");
@@ -205,6 +207,7 @@ namespace MusicPlayer
 		{
 			foreach (var song in Songs)
 			{
+				Song songToPrint = SongShorten(song);
 				Console.WriteLine($"Song: {song.Name}");
 			}
 			Console.WriteLine();
@@ -212,45 +215,12 @@ namespace MusicPlayer
 
 		public void Shuffle()
 		{
-			var tmpList = new List<Song>();
-
-			var rand = new Random();
-			int randSongNum, cntr = Songs.Count;
-
-			for (int i = 0; i < cntr; i++)
-			{
-				randSongNum = rand.Next(Songs.Count);
-				tmpList.Add(Songs.ElementAt(randSongNum));
-				Songs.RemoveAt(randSongNum);
-			}
-			Songs = tmpList;
+			this.Songs = this.Songs.Shuffle();
 		}
 
 		public void SortByTitle()
 		{
-			var tmpList = new List<Song>();
-			var songNameList = new List<string>();
-			int cntr = Songs.Count;
-
-			foreach (var song in Songs)
-			{
-				songNameList.Add(song.Name);
-			}
-			songNameList.Sort();
-
-			foreach (var songName in songNameList)
-			{
-				for (int i = 0; i < cntr; i++)
-				{
-					if (Songs.ElementAt(i).Name == songName)
-					{
-						tmpList.Add(Songs.ElementAt(i));
-						Songs.RemoveAt(i);
-						break;
-					}
-				}
-			}
-			Songs = tmpList;
+			this.Songs = this.Songs.SortByTitle();
 		}
 
 		private void PrintColoredSong(Song tmpSong)
@@ -263,9 +233,21 @@ namespace MusicPlayer
 			{
 				Console.ForegroundColor = ConsoleColor.Red;
 			}
-			Console.WriteLine($"Playing: {tmpSong.Name}\nGenre: {tmpSong.Artist.Genre}\n" +
-	 $"Duration: {tmpSong.Duration}\n");
+
+			Song songToPrint = SongShorten(tmpSong);
+			Console.WriteLine($"Playing: {songToPrint.Name}\nGenre: {songToPrint.Artist.Genre}\n" +
+	 $"Duration: {songToPrint.Duration}\n");
 			Console.ResetColor();
+		}
+
+		private Song SongShorten(Song srcSong)
+		{
+			const int stringLimit = 10;
+
+			Song tmpSong = srcSong;
+			tmpSong.Name = tmpSong.Name.StringShorten(stringLimit);
+
+			return tmpSong;
 		}
 	}
 }
