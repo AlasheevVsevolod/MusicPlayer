@@ -69,14 +69,14 @@ namespace MusicPlayer
 			player.Clear();
 			player.Add(tmpList.ToArray());
 
-			Console.WriteLine("Filtered by genres list: Rock");
-			player.FilterByGenre(Genres.Rock);
+			Console.WriteLine("Filtered by genres list: Folk");
+			player.FilterByGenre(Genres.Folk);
 			player.Start(true);
 			player.Clear();
 			player.Add(tmpList.ToArray());
 
-			Console.WriteLine("Filtered by genres list: Folk");
-			player.FilterByGenre(Genres.Folk);
+			Console.WriteLine("Filtered by genres list: Folk & Rock");
+			player.FilterByGenre(Genres.Folk, Genres.Rock);
 			player.Start(true);
 			player.Clear();
 			player.Add(tmpList.ToArray());

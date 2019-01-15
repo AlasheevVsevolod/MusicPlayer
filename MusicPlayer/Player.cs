@@ -255,13 +255,26 @@ namespace MusicPlayer
 			return tmpSong;
 		}
 
-		public void FilterByGenre(Genres filterGenre)
+		public void FilterByGenre(params Genres[] filterGenre)
 		{
+			bool isContainingGenres = true;
 			List<Song> tmpList = new List<Song>();
 
 			foreach (var song in Songs)
 			{
-				if (song.Artist.Genre.Contains(Convert.ToString(filterGenre)))
+				foreach (Genres genre in filterGenre)
+				{
+					if (song.Artist.Genre.Contains(Convert.ToString(genre)))
+					{
+						isContainingGenres = true;
+					}
+					else
+					{
+						isContainingGenres = false;
+						break;
+					}
+				}
+				if (isContainingGenres)
 				{
 					tmpList.Add(song);
 				}
