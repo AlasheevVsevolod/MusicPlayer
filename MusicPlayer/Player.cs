@@ -170,6 +170,11 @@ namespace MusicPlayer
 			}
 		}
 
+		public void Clear()
+		{
+			Songs.Clear();
+		}
+
 		public void SongInfo(Song CurrentSong)
 		{
 			Song songToPrint = SongShorten(CurrentSong);
@@ -248,6 +253,20 @@ namespace MusicPlayer
 			tmpSong.Name = tmpSong.Name.StringShorten(stringLimit);
 
 			return tmpSong;
+		}
+
+		public void FilterByGenre(Genres filterGenre)
+		{
+			List<Song> tmpList = new List<Song>();
+
+			foreach (var song in Songs)
+			{
+				if (song.Artist.Genre.Contains(Convert.ToString(filterGenre)))
+				{
+					tmpList.Add(song);
+				}
+			}
+			Songs = tmpList;
 		}
 	}
 }

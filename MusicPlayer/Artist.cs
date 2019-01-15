@@ -50,6 +50,8 @@ namespace MusicPlayer
 				cntr = cntr << 1;
 			}
 
+			listGenres.Sort();
+
 			foreach (var str in listGenres)
 			{
 				strGenres = strGenres + "/" + str;
