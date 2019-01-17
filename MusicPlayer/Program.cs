@@ -26,7 +26,7 @@ namespace MusicPlayer
 			player.Start();
 
 			player.Add(CreateSong("Her Ghost", 174, "Dance With The Dead", 
-			Genres.Electronic | Genres.Synthwave | Genres.Rock, "The Shape", 2016));
+			Genres.Rock | Genres.Synthwave | Genres.Electronic, "The Shape", 2016));
 			player.Add(CreateSong("Robeast", 234, "Dance With The Dead", 
 			Genres.Electronic | Genres.Synthwave, "Out Of Body", 2013, true));
 
@@ -48,17 +48,40 @@ namespace MusicPlayer
 
 			player.ShowAllSongsName();
 
-			Console.WriteLine("Shuffled list:");
+/*			Console.WriteLine("Shuffled list:");
 			player.Shuffle();
 			player.Start(true);
-
+*/
 			Console.WriteLine("Sorted list:");
 			player.SortByTitle();
 			player.Start(true);
 
-			Console.WriteLine("Shuffled list:");
+/*			Console.WriteLine("Shuffled list:");
 			player.Shuffle();
 			player.Start(true);
+*/
+			List<Song> tmpList = new List<Song>();
+			tmpList = player.Songs.ToList();
+
+			Console.WriteLine("Filtered by genres list: Synthwave");
+			player.FilterByGenre(Genres.Synthwave);
+			player.Start(true);
+			player.Clear();
+			player.Add(tmpList.ToArray());
+
+			Console.WriteLine("Filtered by genres list: Folk");
+			player.FilterByGenre(Genres.Folk);
+			player.Start(true);
+			player.Clear();
+			player.Add(tmpList.ToArray());
+
+			Console.WriteLine("Filtered by genres list: Folk & Rock");
+			player.FilterByGenre(Genres.Folk, Genres.Rock);
+			player.Start(true);
+			player.Clear();
+			player.Add(tmpList.ToArray());
+
+
 
 			Console.ReadLine();
 		}
