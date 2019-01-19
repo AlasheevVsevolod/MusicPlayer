@@ -45,6 +45,7 @@ namespace MusicPlayer
 
 		public override void Render(string text)
 		{
+			Console.BackgroundColor = ConsoleColor.White;
 			Console.ForegroundColor = textColor;
 			Console.WriteLine(text);
 			Console.ResetColor();
@@ -69,6 +70,7 @@ namespace MusicPlayer
 
 		public override void Render(string text)
 		{
+			Console.BackgroundColor = ConsoleColor.White;
 			Console.ForegroundColor = (ConsoleColor)rand.Next(15);
 			string reversedString = new string(
 				text.Select(c => char.IsLower(c) ? char.ToUpper(c) : char.ToLower(c)).ToArray());

@@ -11,8 +11,8 @@ namespace MusicPlayer
 		static void Main(string[] args)
 		{
 			//var player = new Player(new ClassicSkin());
-			var player = new Player(new ColoredSkin(ConsoleColor.Yellow));
-			//var player = new Player(new RandColorSkin());
+			//var player = new Player(new ColoredSkin(ConsoleColor.DarkGreen));
+			var player = new Player(new RandColorSkin());
 
 			player.Add(GetSongsData());
 
