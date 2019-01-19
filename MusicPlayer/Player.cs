@@ -9,6 +9,13 @@ namespace MusicPlayer
 {
 	public class Player
 	{
+		private Skins _playerSkin;
+
+		public Player(Skins tmpSkin)
+		{
+			_playerSkin = tmpSkin;
+		}
+
 		const int MIN_VOLUME = 0;
 		const int MAX_VOLUME = 100;
 
@@ -56,7 +63,7 @@ namespace MusicPlayer
 			if(!_locked)
 			{
 				Volume++;
-				Console.WriteLine($"Громкость увеличена. {_volume}%");
+				_playerSkin.Render($"Громкость увеличена. {_volume}%");
 			}
 			else
 			{
@@ -69,7 +76,7 @@ namespace MusicPlayer
 			if(!_locked)
 			{
 				Volume--;
-				Console.WriteLine($"Громкость уменьшена. {_volume}%");
+				_playerSkin.Render($"Громкость уменьшена. {_volume}%");
 			}
 			else
 			{
@@ -84,11 +91,11 @@ namespace MusicPlayer
 				Volume += step;
 				if (step > 0)
 				{
-					Console.WriteLine($"Громкость увеличена. {_volume}%");
+					_playerSkin.Render($"Громкость увеличена. {_volume}%");
 				}
 				else
 				{
-					Console.WriteLine($"Громкость уменьшена. {_volume}%");
+					_playerSkin.Render($"Громкость уменьшена. {_volume}%");
 				}
 			}
 			else
@@ -105,15 +112,17 @@ namespace MusicPlayer
 				{
 					if (loop)
 					{
+						_playerSkin.Clear();
 						foreach (var song in Songs)
 						{
 							PrintColoredSong(song);
 							System.Threading.Thread.Sleep(500);
 						}
-						Console.WriteLine();
+						_playerSkin.Render();
 					}
 					else
 					{
+						_playerSkin.Clear();
 						_playing = true;
 						PrintColoredSong(Songs.First());
 						System.Threading.Thread.Sleep(500);
@@ -121,12 +130,12 @@ namespace MusicPlayer
 				}
 				catch (System.InvalidOperationException)
 				{
-					Console.WriteLine($"Плейлист пустой. Добавьте песни\n");
+					_playerSkin.Render($"Плейлист пустой. Добавьте песни\n");
 				}
 			}
 			else
 			{
-				Console.WriteLine("Нельзя запустить плеер. Он заблокирован");
+				_playerSkin.Render("Нельзя запустить плеер. Он заблокирован");
 			}
 			return _playing;
 		}
@@ -136,11 +145,11 @@ namespace MusicPlayer
 			if(!_locked)
 			{
 				_playing = false;
-				Console.WriteLine("Плеер остановлен");
+				_playerSkin.Render("Плеер остановлен");
 			}
 			else
 			{
-				Console.WriteLine("Нельзя остановить плеер. Он заблокирован");
+				_playerSkin.Render("Нельзя остановить плеер. Он заблокирован");
 			}
 			return _playing;
 		}
@@ -148,18 +157,18 @@ namespace MusicPlayer
 		public void Lock()
 		{
 			_locked = true;
-			Console.WriteLine("Плеер заблокирован");
+			_playerSkin.Render("Плеер заблокирован");
 		}
 
 		public void Unlock()
 		{
 			_locked = false;
-			Console.WriteLine("Плеер разблокирован");
+			_playerSkin.Render("Плеер разблокирован");
 		}
 
 		private void BlockVolumeChange()
 		{
-			Console.WriteLine("Нельзя изменить громкость. Плеер заблокирован");
+			_playerSkin.Render("Нельзя изменить громкость. Плеер заблокирован");
 		}
 
 		public void Add(params Song[] arrOfSongs)
@@ -178,23 +187,23 @@ namespace MusicPlayer
 		public void SongInfo(Song CurrentSong)
 		{
 			Song songToPrint = SongShorten(CurrentSong);
-			Console.WriteLine($"Artist: {CurrentSong.Artist.Name}");
-			Console.WriteLine($"Song: {CurrentSong.Name}");
-			Console.WriteLine($"Duration: {CurrentSong.Duration}");
-			Console.WriteLine($"Album: {CurrentSong.Album.Name}");
-			Console.WriteLine($"Year: {CurrentSong.Album.Year}");
-			Console.WriteLine($"Genre: {CurrentSong.Artist.Genre}");
+			_playerSkin.Render($"Artist: {CurrentSong.Artist.Name}");
+			_playerSkin.Render($"Song: {CurrentSong.Name}");
+			_playerSkin.Render($"Duration: {CurrentSong.Duration}");
+			_playerSkin.Render($"Album: {CurrentSong.Album.Name}");
+			_playerSkin.Render($"Year: {CurrentSong.Album.Year}");
+			_playerSkin.Render($"Genre: {CurrentSong.Artist.Genre}");
 			if (CurrentSong.Like == null)
 			{
-				Console.WriteLine($"Liked: undefined\n");
+				_playerSkin.Render($"Liked: undefined\n");
 			}
 			else if (CurrentSong.Like == true)
 			{
-				Console.WriteLine($"Liked: yes\n");
+				_playerSkin.Render($"Liked: yes\n");
 			}
 			else
 			{
-				Console.WriteLine($"Liked: no\n");
+				_playerSkin.Render($"Liked: no\n");
 			}
 		}
 
@@ -203,7 +212,7 @@ namespace MusicPlayer
 			int songNumber = 1;
 			foreach (var song in Songs)
 			{
-				Console.WriteLine($"№{songNumber++}");
+				_playerSkin.Render($"№{songNumber++}");
 				SongInfo(song);
 			}
 		}
@@ -213,9 +222,9 @@ namespace MusicPlayer
 			foreach (var song in Songs)
 			{
 				Song songToPrint = SongShorten(song);
-				Console.WriteLine($"Song: {song.Name}");
+				_playerSkin.Render($"Song: {song.Name}");
 			}
-			Console.WriteLine();
+			_playerSkin.Render();
 		}
 
 		public void Shuffle()
@@ -240,7 +249,7 @@ namespace MusicPlayer
 			}
 
 			Song songToPrint = SongShorten(tmpSong);
-			Console.WriteLine($"Playing: {songToPrint.Name}\nGenre: {songToPrint.Artist.Genre}\n" +
+			_playerSkin.Render($"Playing: {songToPrint.Name}\nGenre: {songToPrint.Artist.Genre}\n" +
 	 $"Duration: {songToPrint.Duration}\n");
 			Console.ResetColor();
 		}
