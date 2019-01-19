@@ -36,41 +36,16 @@ namespace MusicPlayer
 			2012, false));
 			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", Genres.Folk | Genres.Rock, "Slania", 
 			2008, true));
-//			player.Start(true);
-			player.Start();
 
-			var songsArr = new Song[3];
-			for (int i = 0; i < songsArr.Length; i++)
-			{
-				songsArr[i] = CreateSong();
-			}
-			player.Add(songsArr);
-
-			player.ShowAllSongsName();
-
-/*			Console.WriteLine("Shuffled list:");
-			player.Shuffle();
-			player.Start(true);
-*/
 			Console.WriteLine("Sorted list:");
 			player.SortByTitle();
 			player.Start(true);
 
-/*			Console.WriteLine("Shuffled list:");
-			player.Shuffle();
-			player.Start(true);
-*/
 			List<Song> tmpList = new List<Song>();
 			tmpList = player.Songs.ToList();
 
 			Console.WriteLine("Filtered by genres list: Synthwave");
 			player.FilterByGenre(Genres.Synthwave);
-			player.Start(true);
-			player.Clear();
-			player.Add(tmpList.ToArray());
-
-			Console.WriteLine("Filtered by genres list: Folk");
-			player.FilterByGenre(Genres.Folk);
 			player.Start(true);
 			player.Clear();
 			player.Add(tmpList.ToArray());
