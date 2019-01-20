@@ -75,7 +75,7 @@ namespace MusicPlayer
 				Artist = new Artist
 				{
 					Name = "Powerwolf",
-					Genre = "Metal"
+					Genre = Genres.Metal
 				}
 			};
 
@@ -129,12 +129,12 @@ namespace MusicPlayer
 				},
 				Artist = new Artist()
 				{
-					Name = ArtistName
+					Name = ArtistName,
+					Genre = ArtistGenre
 				},
 				Name = SongName,
 				Like = Like
 			};
-			ExplicitSong.Artist.Genre = ExplicitSong.Artist.GetArtistGenre(ArtistGenre);
 
 			return ExplicitSong;
 		}
