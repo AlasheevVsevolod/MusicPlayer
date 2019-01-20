@@ -10,9 +10,9 @@ namespace MusicPlayer
 	{
 		static void Main(string[] args)
 		{
-			var player = new Player();
-
-			player.Start();
+			//var player = new Player(new ClassicSkin());
+			//var player = new Player(new ColoredSkin(ConsoleColor.DarkGreen));
+			var player = new Player(new RandColorSkin());
 
 			player.Add(GetSongsData());
 
@@ -23,7 +23,6 @@ namespace MusicPlayer
 
 			player.Add(CreateSong("Uptown Funk", 123, "Bruno Mars", Genres.Pop, "Uptown Funk", 
 			2015, false));
-			player.Start();
 
 			player.Add(CreateSong("Her Ghost", 174, "Dance With The Dead", 
 			Genres.Rock | Genres.Synthwave | Genres.Electronic, "The Shape", 2016));
@@ -37,20 +36,20 @@ namespace MusicPlayer
 			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", Genres.Folk | Genres.Rock, "Slania", 
 			2008, true));
 
-			Console.WriteLine("Sorted list:");
+//			Console.WriteLine("Sorted list:");
 			player.SortByTitle();
 			player.Start(true);
 
 			List<Song> tmpList = new List<Song>();
 			tmpList = player.Songs.ToList();
 
-			Console.WriteLine("Filtered by genres list: Synthwave");
+//			Console.WriteLine("Filtered by genres list: Synthwave");
 			player.FilterByGenre(Genres.Synthwave);
 			player.Start(true);
 			player.Clear();
 			player.Add(tmpList.ToArray());
 
-			Console.WriteLine("Filtered by genres list: Folk & Rock");
+//			Console.WriteLine("Filtered by genres list: Folk & Rock");
 			player.FilterByGenre(Genres.Folk, Genres.Rock);
 			player.Start(true);
 			player.Clear();
