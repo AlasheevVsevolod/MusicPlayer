@@ -8,56 +8,25 @@ namespace MusicPlayer
 {
 	public class Artist
 	{
-		public string Genre;
+		public Genres Genre;
 		public string Name;
 
 		public Artist()
 		{
 			Name = "Default artist";
-			Genre = "Default genre";
+			Genre = Genres.Undefined;
 		}
 
 		public Artist(string name)
 		{
 			Name = name;
-			Genre = "Default genre";
+			Genre = Genres.Undefined;
 		}
 
-		public Artist(string name, string genre)
+		public Artist(string name, Genres genre)
 		{
 			Name = name;
 			Genre = genre;
-		}
-
-		public string GetArtistGenre(Genres genres)
-		{
-			var listGenres = new List<string>();
-			int tmpGenre = 0, cntr = 1;
-			string strGenres = "";
-
-			if (genres == 0)
-			{
-				return "Undefined";
-			}
-
-			while (tmpGenre != (int)genres)
-			{
-				if ((genres & (Genres)cntr) == (Genres)cntr)
-				{
-					listGenres.Add(((Genres)cntr).ToString());
-					tmpGenre = tmpGenre | cntr;
-				}
-				cntr = cntr << 1;
-			}
-
-			listGenres.Sort();
-
-			foreach (var str in listGenres)
-			{
-				strGenres = strGenres + "/" + str;
-			}
-			//	/qwe/asd/zxc - нужно убрать первый символ
-			return strGenres.Substring(1);
 		}
 	}
 

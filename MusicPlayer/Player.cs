@@ -249,8 +249,7 @@ namespace MusicPlayer
 			}
 
 			Song songToPrint = SongShorten(tmpSong);
-			_playerSkin.Render($"Playing: {songToPrint.Name}\nGenre: {songToPrint.Artist.Genre}\n" +
-	 $"Duration: {songToPrint.Duration}\n");
+			_playerSkin.Render($"Playing: {songToPrint.Name}\nGenre: {ArtistGenreToString(songToPrint.Artist.Genre)}\n" + $"Duration: {songToPrint.Duration}\n");
 			Console.ResetColor();
 		}
 
@@ -273,7 +272,7 @@ namespace MusicPlayer
 			{
 				foreach (Genres genre in filterGenre)
 				{
-					if (song.Artist.Genre.Contains(Convert.ToString(genre)))
+					if ((song.Artist.Genre & genre) == genre)
 					{
 						isContainingGenres = true;
 					}
@@ -289,6 +288,37 @@ namespace MusicPlayer
 				}
 			}
 			Songs = tmpList;
+		}
+
+		public string ArtistGenreToString(Genres genres)
+		{
+			var listGenres = new List<string>();
+			int tmpGenre = 0, cntr = 1;
+			string strGenres = "";
+
+			if (genres == 0)
+			{
+				return "Undefined";
+			}
+
+			while (tmpGenre != (int)genres)
+			{
+				if ((genres & (Genres)cntr) == (Genres)cntr)
+				{
+					listGenres.Add(((Genres)cntr).ToString());
+					tmpGenre = tmpGenre | cntr;
+				}
+				cntr = cntr << 1;
+			}
+
+			listGenres.Sort();
+
+			foreach (var str in listGenres)
+			{
+				strGenres = strGenres + "/" + str;
+			}
+			//	/qwe/asd/zxc - нужно убрать первый символ
+			return strGenres.Substring(1);
 		}
 	}
 }
