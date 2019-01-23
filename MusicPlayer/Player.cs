@@ -9,9 +9,9 @@ namespace MusicPlayer
 {
 	public class Player
 	{
-		private Skins _playerSkin;
+		private ISkins _playerSkin;
 
-		public Player(Skins tmpSkin)
+		public Player(ISkins tmpSkin)
 		{
 			_playerSkin = tmpSkin;
 		}
