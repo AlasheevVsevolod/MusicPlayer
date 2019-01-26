@@ -10,133 +10,180 @@ namespace MusicPlayer
 	{
 		static void Main(string[] args)
 		{
-			//var player = new Player(new ClassicSkin());
-			//var player = new Player(new ColoredSkin(ConsoleColor.DarkGreen));
-			var player = new Player(new RandColorSkin());
+			Player player;
+			bool playerWorking = true, isCmdParamsExists = false;
+			string consoleString, consoleCommand, cmdParameter;
 
-			player.Add(GetSongsData());
+			Console.WriteLine("Классический скин: 1");
+			Console.WriteLine("Цветной скин: 2");
+			Console.WriteLine("Разноцветный скин: 3");
+			Console.Write("Выберите скин: ");
 
 
-			player.Add(CreateSong("Sahti"));
-			player.Add(CreateSong("Kunnia"));
-			player.Add(CreateSong("Ievan Polkka"));
+			switch (Console.ReadLine())
+			{
+				case "1":
+					player = new Player(new ClassicSkin());
+					break;
 
-			player.Add(CreateSong("Uptown Funk", 123, "Bruno Mars", Genres.Pop, "Uptown Funk", 
-			2015, false));
+				case "2":
+					player = new Player(new ColoredSkin(ConsoleColor.DarkGreen));
+					break;
 
-			player.Add(CreateSong("Her Ghost", 174, "Dance With The Dead", 
-			Genres.Rock | Genres.Synthwave | Genres.Electronic, "The Shape", 2016));
-			player.Add(CreateSong("Robeast", 234, "Dance With The Dead", 
-			Genres.Electronic | Genres.Synthwave, "Out Of Body", 2013, true));
+				case "3":
+					player = new Player(new RandColorSkin());
+					break;
 
-			player.Add(CreateSong("Luxtos", 346, "Eluveitie", Genres.Folk | Genres.Metal, 
-			"Helvetios", 2012));
-			player.Add(CreateSong("A Rose For Epona", 267, "Eluveitie", Genres.Folk, "Helvetios", 
-			2012, false));
-			player.Add(CreateSong("Inis Mona", 328, "Eluveitie", Genres.Folk | Genres.Rock, "Slania", 
-			2008, true));
+				default:
+					Console.WriteLine("Значит классический");
+					player = new Player(new ClassicSkin());
+					break;
+			}
 
-//			Console.WriteLine("Sorted list:");
+			Console.WriteLine("help - поддерживаемые комманды");
+
+			while (playerWorking)
+			{
+				consoleString = Console.ReadLine();
+				isCmdParamsExists = IsCmdParam(consoleString, out consoleCommand, out cmdParameter);
+
+				switch (consoleCommand)
+				{
+					case "a":
+					case "add":
+						if (!isCmdParamsExists)
+						{
+							Console.WriteLine("add [path] - добавить все(пока) песни из папки [path]");
+							break;
+						}
+						int numOfFiles = player.LoadFiles(cmdParameter);
+						if (numOfFiles > 0)
+						{
+							Console.WriteLine($"Файлов добавлено: {numOfFiles}");
+						}
+						break;
+
+					case "cl":
+					case "clear":
+						player.Clear();
+						Console.WriteLine("Список очищен");
+						break;
+
+					case "f":
+					case "filter":
+						if (!isCmdParamsExists)
+						{
+							Console.WriteLine("filter [genre] - сортировать список по жанрам");
+							break;
+						}
+
+						player.FilterByGenre(cmdParameter);
+						Console.WriteLine("Список отфильтрован");
+						break;
+
+					case "h":
+					case "help":
+						Console.WriteLine("add [path] - добавить все(пока) песни из папки [path]");
+						Console.WriteLine("clear - очистить список");
+						Console.WriteLine("filter [genre] - сортировать список по жанрам");
+						Console.WriteLine("help - поддерживаемые комманды");
+						Console.WriteLine("load [path] - загрузить список");
+						Console.WriteLine("play - проиграть весь список");
+						Console.WriteLine("playone - проиграть первую(пока) песню");
+						Console.WriteLine("quit - выйти из программы");
+						Console.WriteLine("save [path] - сохранить список");
+						Console.WriteLine("shuffle - перемешать список");
+						Console.WriteLine("songsinfo - информация по каждой песне");
+						Console.WriteLine("songsname - название каждой песне");
+						Console.WriteLine("sort - сортировать список по названию песни");
+						break;
+
+/*					case "load":
+						if (!isCmdParamsExists)
+						{
+							Console.WriteLine("load [path] - загрузить список");
+							break;
+						}
+
+						player.ShowAllSongsInfo();
+						break;*/
+
+					case "p":
+					case "play":
+						player.Start(true);
+						break;
+
+					case "playone":
+						player.Start(false);
+						break;
+
+					case "q":
+					case "quit":
+						playerWorking = false;
+						Console.WriteLine("Выход из программы");
+						break;
+
+/*					case "save":
+						if (!isCmdParamsExists)
+						{
+							goto HelpCase;
+						}
+
+						player.ShowAllSongsInfo();
+						break;*/
+
+					case "sr":
+					case "sort":
+						player.SortByTitle();
+						Console.WriteLine("Список отсортирован");
+						break;
+
+					case "si":
+					case "songsinfo":
+						player.ShowAllSongsInfo();
+						break;
+
+					case "sn":
+					case "songsname":
+						player.ShowAllSongsName();
+						break;
+
+					case "sh":
+					case "shuffle":
+						player.Shuffle();
+						Console.WriteLine("Список перемешан");
+						break;
+
+					default:
+						break;
+				}
+			}
+
+
+/*			Console.WriteLine("Sorted list:");
 			player.SortByTitle();
-			player.Start(true);
-
-			List<Song> tmpList = new List<Song>();
-			tmpList = player.Songs.ToList();
-
-//			Console.WriteLine("Filtered by genres list: Synthwave");
-			player.FilterByGenre(Genres.Synthwave);
-			player.Start(true);
-			player.Clear();
-			player.Add(tmpList.ToArray());
-
-//			Console.WriteLine("Filtered by genres list: Folk & Rock");
-			player.FilterByGenre(Genres.Folk, Genres.Rock);
-			player.Start(true);
-			player.Clear();
-			player.Add(tmpList.ToArray());
+			player.Start(true);*/
 
 
 
 			Console.ReadLine();
 		}
 
-
-		public static Song GetSongsData()
+		public static bool IsCmdParam(string consoleString, out string consoleCommand, out string cmdParameter)
 		{
-			var song = new Song()
+			cmdParameter = null;
+
+			if (consoleString.Contains(" "))
 			{
-				Duration = 100,
-				Name = "New song",
-				Album = new Album
-				{
-					Name = "New Album",
-					Year = 2018
-				},
-				Artist = new Artist
-				{
-					Name = "Powerwolf",
-					Genre = Genres.Metal
-				}
-			};
-
-			return song;
-		}
-
-
-		public static Song CreateSong()
-		{
-			var rand = new Random();
-
-			var tmpSongName = Convert.ToString((char)rand.Next((int)'A', (int)'Z'));
-			var tmpDuration = rand.Next(60, 301);
-
-			var tmpArtistName = Convert.ToString((char)rand.Next((int)'A', (int)'Z'));
-
-			var tmpAlbumName = Convert.ToString((char)rand.Next((int)'A', (int)'Z'));
-			var tmpAlbumYear = rand.Next(1980, DateTime.Today.Year);
-
-			System.Threading.Thread.Sleep(20);
-
-			return CreateSong(tmpSongName, tmpDuration, tmpArtistName, 0, tmpAlbumName, tmpAlbumYear);
-		}
-
-		public static Song CreateSong(string SongName)
-		{
-			var rand = new Random();
-
-			var tmpDuration = rand.Next(60, 301);
-
-			var tmpArtistName = "Drfault Artist";
-
-			var tmpAlbumName = "Default Album";
-			var tmpAlbumYear = rand.Next(1980, DateTime.Today.Year);
-
-			System.Threading.Thread.Sleep(20);
-
-			return CreateSong(SongName, tmpDuration, tmpArtistName, 0, tmpAlbumName, tmpAlbumYear);
-		}
-
-		public static Song CreateSong(string SongName, int SongDuration, string ArtistName,
-		Genres ArtistGenre, string AlbumName, int AlbumYear, bool? Like = null)
-		{
-			var ExplicitSong = new Song()
+				consoleCommand = consoleString.Substring(0, consoleString.IndexOf(" "));
+				cmdParameter = consoleString.Substring(consoleString.IndexOf(" ") + 1);
+				return true;
+			}
+			else
 			{
-				Duration = SongDuration,
-				Album = new Album()
-				{
-					Name = AlbumName,
-					Year = AlbumYear
-				},
-				Artist = new Artist()
-				{
-					Name = ArtistName,
-					Genre = ArtistGenre
-				},
-				Name = SongName,
-				Like = Like
-			};
-
-			return ExplicitSong;
+				consoleCommand = consoleString;
+				return false;
+			}
 		}
 	}
 }

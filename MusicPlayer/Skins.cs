@@ -89,6 +89,5 @@ namespace MusicPlayer
 		{
 			Console.WriteLine();
 		}
-
 	}
 }
