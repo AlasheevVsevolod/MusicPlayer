@@ -63,7 +63,7 @@ namespace MusicPlayer
 						}
 						break;
 
-					case "cl":
+					case "c":
 					case "clear":
 						player.Clear();
 						Console.WriteLine("Список очищен");
@@ -98,15 +98,17 @@ namespace MusicPlayer
 						Console.WriteLine("sort - сортировать список по названию песни");
 						break;
 
-/*					case "load":
+					case "l":
+					case "load":
 						if (!isCmdParamsExists)
 						{
 							Console.WriteLine("load [path] - загрузить список");
 							break;
 						}
 
-						player.ShowAllSongsInfo();
-						break;*/
+						player.LoadPlaylist(cmdParameter);
+						Console.WriteLine("Список загружен");
+						break;
 
 					case "p":
 					case "play":
@@ -120,17 +122,19 @@ namespace MusicPlayer
 					case "q":
 					case "quit":
 						playerWorking = false;
-						Console.WriteLine("Выход из программы");
 						break;
 
-/*					case "save":
+					case "sv":
+					case "save":
 						if (!isCmdParamsExists)
 						{
-							goto HelpCase;
+							Console.WriteLine("save [path] - сохранить список");
+							break;
 						}
 
-						player.ShowAllSongsInfo();
-						break;*/
+						player.SavePlaylist(cmdParameter);
+						Console.WriteLine("Список сохранен");
+						break;
 
 					case "sr":
 					case "sort":
@@ -158,15 +162,6 @@ namespace MusicPlayer
 						break;
 				}
 			}
-
-
-/*			Console.WriteLine("Sorted list:");
-			player.SortByTitle();
-			player.Start(true);*/
-
-
-
-			Console.ReadLine();
 		}
 
 		public static bool IsCmdParam(string consoleString, out string consoleCommand, out string cmdParameter)

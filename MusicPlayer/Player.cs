@@ -5,14 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MusicPlayer.Extensions;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace MusicPlayer
 {
 	public class Player
 	{
-		private ISkins _playerSkin;
+		private Skins _playerSkin;
 
-		public Player(ISkins tmpSkin)
+		public Player(Skins tmpSkin)
 		{
 			_playerSkin = tmpSkin;
 		}
@@ -113,17 +115,14 @@ namespace MusicPlayer
 				{
 					if (loop)
 					{
-						_playerSkin.Clear();
 						foreach (var song in Songs)
 						{
 							PrintColoredSong(song);
 							System.Threading.Thread.Sleep(500);
 						}
-						_playerSkin.Render();
 					}
 					else
 					{
-						_playerSkin.Clear();
 						_playing = true;
 						PrintColoredSong(Songs.First());
 						System.Threading.Thread.Sleep(500);
@@ -131,7 +130,7 @@ namespace MusicPlayer
 				}
 				catch (System.InvalidOperationException)
 				{
-					_playerSkin.Render($"Плейлист пустой. Добавьте песни\n");
+					_playerSkin.Render($"Плейлист пустой. Добавьте песни");
 				}
 			}
 			else
@@ -330,6 +329,36 @@ namespace MusicPlayer
 			}
 
 			return songsArr.Length;
+		}
+
+		public void SavePlaylist(string filePath)
+		{
+			XmlSerializer tmpSrlzr = new XmlSerializer(typeof(List<Song>));
+			filePath = $@"{filePath}\newplaylist.pl";
+
+			if (File.Exists(filePath))
+			{
+				File.Delete(filePath);
+			}
+			using (var xmlWriter = XmlWriter.Create(filePath))
+			{
+				tmpSrlzr.Serialize(xmlWriter, Songs);
+			}
+		}
+
+		public void LoadPlaylist(string filePath)
+		{
+			if (!File.Exists(filePath))
+			{
+				Console.WriteLine("Файл не найден");
+				return;
+			}
+			XmlSerializer tmpSrlzr = new XmlSerializer(typeof(List<Song>));
+
+			using (var xmlReader = XmlReader.Create(filePath))
+			{
+				Songs = (List<Song>)tmpSrlzr.Deserialize(xmlReader);
+			}
 		}
 	}
 }
