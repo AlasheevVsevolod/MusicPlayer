@@ -262,18 +262,7 @@ namespace MusicPlayer
 
 		public void FilterByGenre(string filterGenre)
 		{
-			bool isContainingGenres = true;
-//			List<string> genresList =  new List<string>();
 			List<Song> tmpList = new List<Song>();
-
-/*			if (filterGenre.Contains(" "))
-			{
-				//todo
-			}
-			else
-			{
-				genresList.Append(filterGenre);
-			}*/
 
 			foreach (var song in Songs)
 			{
@@ -324,7 +313,6 @@ namespace MusicPlayer
 						Genre = file.Tag.Genres.StringArrToString("/")
 					}
 				};
-
 				Songs.Add(newSong);
 			}
 
@@ -336,6 +324,7 @@ namespace MusicPlayer
 			XmlSerializer tmpSrlzr = new XmlSerializer(typeof(List<Song>));
 			filePath = $@"{filePath}\newplaylist.pl";
 
+			//Если файл есть - перезаписываю
 			if (File.Exists(filePath))
 			{
 				File.Delete(filePath);
@@ -348,13 +337,14 @@ namespace MusicPlayer
 
 		public void LoadPlaylist(string filePath)
 		{
+			//Нет файла - выход
 			if (!File.Exists(filePath))
 			{
 				Console.WriteLine("Файл не найден");
 				return;
 			}
-			XmlSerializer tmpSrlzr = new XmlSerializer(typeof(List<Song>));
 
+			XmlSerializer tmpSrlzr = new XmlSerializer(typeof(List<Song>));
 			using (var xmlReader = XmlReader.Create(filePath))
 			{
 				Songs = (List<Song>)tmpSrlzr.Deserialize(xmlReader);
