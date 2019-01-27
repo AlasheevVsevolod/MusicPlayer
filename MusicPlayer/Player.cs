@@ -1,17 +1,20 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MusicPlayer.Extensions;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace MusicPlayer
 {
 	public class Player
 	{
-		private ISkins _playerSkin;
+		private Skins _playerSkin;
 
-		public Player(ISkins tmpSkin)
+		public Player(Skins tmpSkin)
 		{
 			_playerSkin = tmpSkin;
 		}
@@ -112,17 +115,14 @@ namespace MusicPlayer
 				{
 					if (loop)
 					{
-						_playerSkin.Clear();
 						foreach (var song in Songs)
 						{
 							PrintColoredSong(song);
 							System.Threading.Thread.Sleep(500);
 						}
-						_playerSkin.Render();
 					}
 					else
 					{
-						_playerSkin.Clear();
 						_playing = true;
 						PrintColoredSong(Songs.First());
 						System.Threading.Thread.Sleep(500);
@@ -130,7 +130,7 @@ namespace MusicPlayer
 				}
 				catch (System.InvalidOperationException)
 				{
-					_playerSkin.Render($"Плейлист пустой. Добавьте песни\n");
+					_playerSkin.Render($"Плейлист пустой. Добавьте песни");
 				}
 			}
 			else
@@ -171,7 +171,7 @@ namespace MusicPlayer
 			_playerSkin.Render("Нельзя изменить громкость. Плеер заблокирован");
 		}
 
-		public void Add(params Song[] arrOfSongs)
+		private void Add(params Song[] arrOfSongs)
 		{
 			foreach (var songItem in arrOfSongs)
 			{
@@ -186,7 +186,6 @@ namespace MusicPlayer
 
 		public void SongInfo(Song CurrentSong)
 		{
-			Song songToPrint = SongShorten(CurrentSong);
 			_playerSkin.Render($"Artist: {CurrentSong.Artist.Name}");
 			_playerSkin.Render($"Song: {CurrentSong.Name}");
 			_playerSkin.Render($"Duration: {CurrentSong.Duration}");
@@ -207,7 +206,7 @@ namespace MusicPlayer
 			}
 		}
 
-		public void ShowAllSongs()
+		public void ShowAllSongsInfo()
 		{
 			int songNumber = 1;
 			foreach (var song in Songs)
@@ -221,7 +220,6 @@ namespace MusicPlayer
 		{
 			foreach (var song in Songs)
 			{
-				Song songToPrint = SongShorten(song);
 				_playerSkin.Render($"Song: {song.Name}");
 			}
 			_playerSkin.Render();
@@ -248,12 +246,11 @@ namespace MusicPlayer
 				Console.ForegroundColor = ConsoleColor.Red;
 			}
 
-			Song songToPrint = SongShorten(tmpSong);
-			_playerSkin.Render($"Playing: {songToPrint.Name}\nGenre: {ArtistGenreToString(songToPrint.Artist.Genre)}\n" + $"Duration: {songToPrint.Duration}\n");
+			_playerSkin.Render($"Playing: {tmpSong.Name}\nGenre: {tmpSong.Artist.Genre}\n" + $"Duration: {tmpSong.Duration}\n");
 			Console.ResetColor();
 		}
 
-		private Song SongShorten(Song srcSong)
+/*		private Song SongShorten(Song srcSong)
 		{
 			const int stringLimit = 10;
 
@@ -261,64 +258,97 @@ namespace MusicPlayer
 			tmpSong.Name = tmpSong.Name.StringShorten(stringLimit);
 
 			return tmpSong;
-		}
+		}*/
 
-		public void FilterByGenre(params Genres[] filterGenre)
+		public void FilterByGenre(string filterGenre)
 		{
-			bool isContainingGenres = true;
 			List<Song> tmpList = new List<Song>();
 
 			foreach (var song in Songs)
 			{
-				foreach (Genres genre in filterGenre)
-				{
-					if ((song.Artist.Genre & genre) == genre)
-					{
-						isContainingGenres = true;
-					}
-					else
-					{
-						isContainingGenres = false;
-						break;
-					}
-				}
-				if (isContainingGenres)
+				if (song.Artist.Genre.Contains(filterGenre))
 				{
 					tmpList.Add(song);
 				}
 			}
 			Songs = tmpList;
 		}
-
-		public string ArtistGenreToString(Genres genres)
+		
+		public int LoadFiles(string dirPath)
 		{
-			var listGenres = new List<string>();
-			int tmpGenre = 0, cntr = 1;
-			string strGenres = "";
-
-			if (genres == 0)
+			//Если папки нет - выход
+			if (!Directory.Exists(dirPath))
 			{
-				return "Undefined";
+				Console.WriteLine("Папки не существует");
+				return 0;
 			}
 
-			while (tmpGenre != (int)genres)
+			//Если нет .mp3 файлов - выход
+			var newDir = new DirectoryInfo(dirPath);
+			var fileList = newDir.GetFiles("*.mp3");
+			if (fileList.Length == 0)
 			{
-				if ((genres & (Genres)cntr) == (Genres)cntr)
+				Console.WriteLine(".mp3 файлы не найдены");
+				return 0;
+			}
+
+			//По каждому файлу из списка вытягиваю инфу о песне(TagLib пакет)
+			Song[] songsArr = new Song[fileList.Length];
+			for (int i = 0; i < fileList.Length; i++)
+			{
+				TagLib.File file = TagLib.File.Create(fileList[i].FullName);
+
+				var newSong = new Song()
 				{
-					listGenres.Add(((Genres)cntr).ToString());
-					tmpGenre = tmpGenre | cntr;
-				}
-				cntr = cntr << 1;
+					Name = file.Tag.Title,
+					Duration = (int)file.Properties.Duration.TotalSeconds,
+					Album = new Album()
+					{ 
+						Name = file.Tag.Album,
+						Year = (int)file.Tag.Year
+					},
+					Artist = new Artist()
+					{ 
+						Name = file.Tag.AlbumArtists.StringArrToString(" & "),
+						Genre = file.Tag.Genres.StringArrToString("/")
+					}
+				};
+				Songs.Add(newSong);
 			}
 
-			listGenres.Sort();
+			return songsArr.Length;
+		}
 
-			foreach (var str in listGenres)
+		public void SavePlaylist(string filePath)
+		{
+			XmlSerializer tmpSrlzr = new XmlSerializer(typeof(List<Song>));
+			filePath = $@"{filePath}\newplaylist.pl";
+
+			//Если файл есть - перезаписываю
+			if (File.Exists(filePath))
 			{
-				strGenres = strGenres + "/" + str;
+				File.Delete(filePath);
 			}
-			//	/qwe/asd/zxc - нужно убрать первый символ
-			return strGenres.Substring(1);
+			using (var xmlWriter = XmlWriter.Create(filePath))
+			{
+				tmpSrlzr.Serialize(xmlWriter, Songs);
+			}
+		}
+
+		public void LoadPlaylist(string filePath)
+		{
+			//Нет файла - выход
+			if (!File.Exists(filePath))
+			{
+				Console.WriteLine("Файл не найден");
+				return;
+			}
+
+			XmlSerializer tmpSrlzr = new XmlSerializer(typeof(List<Song>));
+			using (var xmlReader = XmlReader.Create(filePath))
+			{
+				Songs = (List<Song>)tmpSrlzr.Deserialize(xmlReader);
+			}
 		}
 	}
 }

@@ -12,6 +12,7 @@ namespace MusicPlayer
 		public int Duration;
 		public Artist Artist;
 		public Album Album;
+		[NonSerialized]
 		public bool? Like = null;
 
 		public void LikeSong()

@@ -8,6 +8,7 @@ namespace MusicPlayer
 {
 	public class Album
 	{
+		[NonSerialized]
 		public List<byte> Thumbnail;
 		public string Name;
 		public int Year;

@@ -6,24 +6,14 @@ using System.Threading.Tasks;
 
 namespace MusicPlayer
 {
-	public interface ISkins
-	{
-		void Clear();
-		void Render(string text);
-		void Render();
-	}
-
-	public class ClassicSkin: ISkins
+	public abstract class Skins
 	{
 		public void Clear()
 		{
 			Console.Clear();
 		}
 
-		public void Render(string text)
-		{
-			Console.WriteLine(text);
-		}
+		public abstract void Render(string text);
 
 		public void Render()
 		{
@@ -31,7 +21,16 @@ namespace MusicPlayer
 		}
 	}
 
-	public class ColoredSkin : ISkins
+	public class ClassicSkin: Skins
+	{
+		public override void Render(string text)
+		{
+			Console.WriteLine(text);
+		}
+
+	}
+
+	public class ColoredSkin : Skins
 	{
 		private ConsoleColor textColor;
 
@@ -40,42 +39,20 @@ namespace MusicPlayer
 			textColor = tmpColor;
 		}
 
-		public void Clear()
-		{
-			Console.Clear();
-		}
-
-		public void Render(string text)
+		public override void Render(string text)
 		{
 			Console.BackgroundColor = ConsoleColor.White;
 			Console.ForegroundColor = textColor;
 			Console.WriteLine(text);
 			Console.ResetColor();
 		}
-
-		public void Render()
-		{
-			Console.WriteLine();
-		}
 	}
 
-	public class RandColorSkin : ISkins
+	public class RandColorSkin : Skins
 	{
 		Random rand = new Random();
 
-		public void Clear()
-		{
-			Console.Clear();
-			int i = 30;
-			while (i > 0)
-			{
-				Console.Write("\u058d");
-				i--;
-			}
-			Console.WriteLine();
-		}
-
-		public void Render(string text)
+		public override void Render(string text)
 		{
 			Console.BackgroundColor = ConsoleColor.White;
 			Console.ForegroundColor = (ConsoleColor)rand.Next(15);
@@ -84,11 +61,5 @@ namespace MusicPlayer
 			Console.WriteLine(reversedString);
 			Console.ResetColor();
 		}
-
-		public void Render()
-		{
-			Console.WriteLine();
-		}
-
 	}
 }
