@@ -10,6 +10,10 @@ namespace MusicPlayer.Extensions
 	{
 		public static string StringArrToString(this string[] strArr, string dividerSymbol)
 		{
+			if (strArr.Count() < 1)
+			{
+				return null;
+			}
 			if (strArr.Count() == 1)
 			{
 				return strArr[0];
