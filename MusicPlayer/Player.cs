@@ -372,13 +372,12 @@ namespace MusicPlayer
 			{
 				if (disposing)
 				{
-					//!!!!! Я так понял здесь все ссылочные переменные класса нужно обнулять
 					// Free other state (managed objects).
+					this._myPlayer.Dispose();
 					this._myPlayer = null;
 					this._playerSkin = null;
 					this.Songs = null;
 				}
-				//!!!!! а здесь какие-либо файлы, внешние соединения и т.д.
 				// Free your own state (unmanaged objects).
 				_disposed = true;
 			}
