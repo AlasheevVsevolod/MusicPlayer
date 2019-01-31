@@ -7,12 +7,16 @@ using System.Threading.Tasks;
 using MusicPlayer.Extensions;
 using System.Xml;
 using System.Xml.Serialization;
+using System.Media;
 
 namespace MusicPlayer
 {
-	public class Player
+	public class Player : IDisposable
 	{
 		private Skins _playerSkin;
+		private SoundPlayer _myPlayer = new SoundPlayer();
+
+		private bool _disposed = false;
 
 		public Player(Skins tmpSkin)
 		{
@@ -115,17 +119,24 @@ namespace MusicPlayer
 				{
 					if (loop)
 					{
+						int songNumber = 1;
 						foreach (var song in Songs)
 						{
+							_playerSkin.Render($"№{songNumber++}/{Songs.Count}");
 							PrintColoredSong(song);
-							System.Threading.Thread.Sleep(500);
+							//System.Threading.Thread.Sleep(500);
+							_myPlayer.SoundLocation = song.Location;
+							_myPlayer.PlaySync();
 						}
+						_playerSkin.Render("Конец списка");
 					}
 					else
 					{
 						_playing = true;
 						PrintColoredSong(Songs.First());
-						System.Threading.Thread.Sleep(500);
+						//System.Threading.Thread.Sleep(500);
+						_myPlayer.SoundLocation = Songs.First().Location;
+						_myPlayer.PlaySync();
 					}
 				}
 				catch (System.InvalidOperationException)
@@ -285,10 +296,10 @@ namespace MusicPlayer
 
 			//Если нет .mp3 файлов - выход
 			var newDir = new DirectoryInfo(dirPath);
-			var fileList = newDir.GetFiles("*.mp3");
+			var fileList = newDir.GetFiles("*.wav");
 			if (fileList.Length == 0)
 			{
-				Console.WriteLine(".mp3 файлы не найдены");
+				Console.WriteLine(".wav файлы не найдены");
 				return 0;
 			}
 
@@ -300,19 +311,16 @@ namespace MusicPlayer
 
 				var newSong = new Song()
 				{
-					Name = file.Tag.Title,
 					Duration = (int)file.Properties.Duration.TotalSeconds,
-					Album = new Album()
-					{ 
-						Name = file.Tag.Album,
-						Year = (int)file.Tag.Year
-					},
-					Artist = new Artist()
-					{ 
-						Name = file.Tag.AlbumArtists.StringArrToString(" & "),
-						Genre = file.Tag.Genres.StringArrToString("/")
-					}
+					Album = new Album(),
+					Artist = new Artist(),
+					Location = fileList[i].FullName
 				};
+				newSong.Name = file.Tag.Title ?? fileList[i].Name;
+				newSong.Album.Name = file.Tag.Album ?? newSong.Album.Name;
+				newSong.Album.Year = (int)file.Tag.Year;
+				newSong.Artist.Name = file.Tag.AlbumArtists.StringArrToString(" & ") ?? newSong.Artist.Name;
+				newSong.Artist.Genre = file.Tag.Genres.StringArrToString("/") ?? newSong.Artist.Genre;
 				Songs.Add(newSong);
 			}
 
@@ -349,6 +357,36 @@ namespace MusicPlayer
 			{
 				Songs = (List<Song>)tmpSrlzr.Deserialize(xmlReader);
 			}
+		}
+
+		//копипаста
+		//Implement IDisposable.
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!_disposed)
+			{
+				if (disposing)
+				{
+					// Free other state (managed objects).
+					this._myPlayer.Dispose();
+					this._myPlayer = null;
+					this._playerSkin = null;
+					this.Songs = null;
+				}
+				// Free your own state (unmanaged objects).
+				_disposed = true;
+			}
+		}
+		// Use C# destructor syntax for finalization code.
+		~Player()
+		{
+			// Simply call Dispose(false).
+			Dispose(false);
 		}
 	}
 }
