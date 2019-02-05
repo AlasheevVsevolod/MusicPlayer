@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static MusicPlayer.EventHandlers;
 
 namespace MusicPlayer
 {
@@ -10,42 +11,24 @@ namespace MusicPlayer
 	{
 		static void Main(string[] args)
 		{
-			Skins playerSkin;
-
 			bool playerWorking = true, isCmdParamsExists = false;
 			string consoleString, consoleCommand, cmdParameter;
 
-			Console.WriteLine("Классический скин: 1");
-			Console.WriteLine("Цветной скин: 2");
-			Console.WriteLine("Разноцветный скин: 3");
-			Console.Write("Выберите скин: ");
+			PrintHelp();
 
-			switch (Console.ReadLine())
+			using (var player = new Player())
 			{
-				case "1":
-					playerSkin = new ClassicSkin();
-					break;
-
-				case "2":
-					playerSkin = new ColoredSkin(ConsoleColor.DarkGreen);
-					break;
-
-				case "3":
-					playerSkin = new RandColorSkin();
-					break;
-
-				default:
-					Console.WriteLine("Значит классический");
-					playerSkin = new ClassicSkin();
-					break;
-			}
+				player.ErrorEvent += ErrorEventHandler;
+				player.PlayerLockEvent += PlayerLockEventHandler;
+				player.PlayerStartedEvent += PlayerStartedEventHandler;
+				player.PlayerStoppedEvent += PlayerStoppedEventHandler;
+				player.ShowAllSongsInfoEvent += ShowAllSongsInfoEventHandler;
+				player.ShowAllSongsNameEvent += ShowAllSongsNameEventHandler;
+				player.SongListChangedEvent += SongListChangedEventHandler;
+				player.SongStartedEvent += SongStartedEventHandler;
+				player.VolumeChangeEvent += VolumeChangeEventHandler;
 
 
-
-			Console.WriteLine("help - поддерживаемые комманды");
-
-			using (var player = new Player(playerSkin))
-			{
 				while (playerWorking)
 				{
 					consoleString = Console.ReadLine();
@@ -57,7 +40,7 @@ namespace MusicPlayer
 						case "add":
 							if (!isCmdParamsExists)
 							{
-								Console.WriteLine("add [path] - добавить все(пока) песни из папки [path]");
+								Console.WriteLine("Add [path] - добавить все(пока) песни из папки [path]");
 								break;
 							}
 							int numOfFiles = player.LoadFiles(cmdParameter);
@@ -77,7 +60,7 @@ namespace MusicPlayer
 						case "filter":
 							if (!isCmdParamsExists)
 							{
-								Console.WriteLine("filter [genre] - сортировать список по жанрам");
+								Console.WriteLine("Filter [genre] - сортировать список по жанрам");
 								break;
 							}
 
@@ -87,26 +70,14 @@ namespace MusicPlayer
 
 						case "h":
 						case "help":
-							Console.WriteLine("add [path] - добавить все(пока) песни из папки [path]");
-							Console.WriteLine("clear - очистить список");
-							Console.WriteLine("filter [genre] - сортировать список по жанрам");
-							Console.WriteLine("help - поддерживаемые комманды");
-							Console.WriteLine("load [path] - загрузить список");
-							Console.WriteLine("play - проиграть весь список");
-							Console.WriteLine("playone - проиграть первую(пока) песню");
-							Console.WriteLine("quit - выйти из программы");
-							Console.WriteLine("save [path] - сохранить список");
-							Console.WriteLine("shuffle - перемешать список");
-							Console.WriteLine("songsinfo - информация по каждой песне");
-							Console.WriteLine("songsname - название каждой песне");
-							Console.WriteLine("sort - сортировать список по названию песни");
+							PrintHelp();
 							break;
 
-						case "l":
+						case "ld":
 						case "load":
 							if (!isCmdParamsExists)
 							{
-								Console.WriteLine("load [path] - загрузить список");
+								Console.WriteLine("LoaD [path] - загрузить список");
 								break;
 							}
 
@@ -114,11 +85,17 @@ namespace MusicPlayer
 							Console.WriteLine("Список загружен");
 							break;
 
+						case "lk":
+						case "lock":
+							player.Lock();
+							break;
+
 						case "p":
 						case "play":
 							player.Start(true);
 							break;
 
+						case "po":
 						case "playone":
 							player.Start(false);
 							break;
@@ -128,11 +105,27 @@ namespace MusicPlayer
 							playerWorking = false;
 							break;
 
+						case "sh":
+						case "shuffle":
+							player.Shuffle();
+							Console.WriteLine("Список перемешан");
+							break;
+
+						case "si":
+						case "songsinfo":
+							player.ShowAllSongsInfo();
+							break;
+
+						case "sn":
+						case "songsname":
+							player.ShowAllSongsName();
+							break;
+
 						case "sv":
 						case "save":
 							if (!isCmdParamsExists)
 							{
-								Console.WriteLine("save [path] - сохранить список");
+								Console.WriteLine("SaVe [path] - сохранить список");
 								break;
 							}
 
@@ -146,20 +139,30 @@ namespace MusicPlayer
 							Console.WriteLine("Список отсортирован");
 							break;
 
-						case "si":
-						case "songsinfo":
-							player.ShowAllSongsInfo();
+						case "vc":
+						case "volumechange":
+							if (!isCmdParamsExists)
+							{
+								Console.WriteLine("VolumeChange [value] - изменить громкость на заданное значение");
+								break;
+							}
+
+							player.VolumeChange(Convert.ToInt32(cmdParameter));
 							break;
 
-						case "sn":
-						case "songsname":
-							player.ShowAllSongsName();
+						case "vd":
+						case "volumedown":
+							player.VolumeDown();
 							break;
 
-						case "sh":
-						case "shuffle":
-							player.Shuffle();
-							Console.WriteLine("Список перемешан");
+						case "vu":
+						case "volumeup":
+							player.VolumeUp();
+							break;
+
+						case "u":
+						case "unlock":
+							player.Unlock();
 							break;
 
 						default:
@@ -167,6 +170,29 @@ namespace MusicPlayer
 					}
 				}
 			}
+		}
+
+		public static void PrintHelp()
+		{
+			Console.WriteLine("Add [path] - добавить все(пока) песни из папки [path]");
+			Console.WriteLine("Clear - очистить список");
+			Console.WriteLine("Filter [genre] - сортировать список по жанрам");
+			Console.WriteLine("Help - поддерживаемые комманды");
+			Console.WriteLine("LoaD [path] - загрузить список");
+			Console.WriteLine("LocK - заблокировать плеер");
+			Console.WriteLine("Play - проиграть весь список");
+			Console.WriteLine("PlayOne - проиграть первую(пока) песню");
+			Console.WriteLine("Quit - выйти из программы");
+			Console.WriteLine("SaVe [path] - сохранить список");
+			Console.WriteLine("SHuffle - перемешать список");
+			Console.WriteLine("SongsInfo - информация по каждой песне");
+			Console.WriteLine("SongsName - название каждой песне");
+			Console.WriteLine("SoRt - сортировать список по названию песни");
+			Console.WriteLine("Unlock - разблокировать плеер");
+			Console.WriteLine("VolumeChange [value] - изменить громкость на заданное значение");
+			Console.WriteLine("VolumeDown - уменьшить громкость на 1%");
+			Console.WriteLine("VolumeUp - увеличить громкость на 1%");
+			Console.WriteLine();
 		}
 
 		public static bool IsCmdParam(string consoleString, out string consoleCommand, out string cmdParameter)

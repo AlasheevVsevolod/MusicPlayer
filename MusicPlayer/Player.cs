@@ -13,15 +13,20 @@ namespace MusicPlayer
 {
 	public class Player : IDisposable
 	{
-		private Skins _playerSkin;
+		public event Action<Player, string> ErrorEvent;
+		public event Action<Player> PlayerLockEvent;
+		public event Action<Player, Song> PlayerStartedEvent;
+		public event Action<Player> PlayerStoppedEvent;
+		public event Action<Player> ShowAllSongsInfoEvent;
+		public event Action<Player> ShowAllSongsNameEvent;
+		public event Action<Player> SongListChangedEvent;
+		public event Action<Player> SongStartedEvent;
+		public event Action<Player> VolumeChangeEvent;
+
+
 		private SoundPlayer _myPlayer = new SoundPlayer();
 
 		private bool _disposed = false;
-
-		public Player(Skins tmpSkin)
-		{
-			_playerSkin = tmpSkin;
-		}
 
 		const int MIN_VOLUME = 0;
 		const int MAX_VOLUME = 100;
@@ -63,18 +68,18 @@ namespace MusicPlayer
 		}
 
 		public List<Song> Songs { get; private set; } = new List<Song>();
-
+		public string errorString;
 
 		public void VolumeUp()
 		{
 			if(!_locked)
 			{
 				Volume++;
-				_playerSkin.Render($"Громкость увеличена. {_volume}%");
+				VolumeChangeEvent(this);
 			}
 			else
 			{
-				BlockVolumeChange();
+				BlockError();
 			}
 		}
 
@@ -83,11 +88,11 @@ namespace MusicPlayer
 			if(!_locked)
 			{
 				Volume--;
-				_playerSkin.Render($"Громкость уменьшена. {_volume}%");
+				VolumeChangeEvent(this);
 			}
 			else
 			{
-				BlockVolumeChange();
+				BlockError();
 			}
 		}
 
@@ -98,16 +103,16 @@ namespace MusicPlayer
 				Volume += step;
 				if (step > 0)
 				{
-					_playerSkin.Render($"Громкость увеличена. {_volume}%");
+					VolumeChangeEvent(this);
 				}
 				else
 				{
-					_playerSkin.Render($"Громкость уменьшена. {_volume}%");
+					VolumeChangeEvent(this);
 				}
 			}
 			else
 			{
-				BlockVolumeChange();
+				BlockError();
 			}
 		}
 
@@ -115,38 +120,34 @@ namespace MusicPlayer
 		{
 			if(!_locked)
 			{
-				try
+				if(Songs.Count > 0)
 				{
 					if (loop)
 					{
-						int songNumber = 1;
 						foreach (var song in Songs)
 						{
-							_playerSkin.Render($"№{songNumber++}/{Songs.Count}");
-							PrintColoredSong(song);
-							//System.Threading.Thread.Sleep(500);
+							PlayerStartedEvent(this, song);
 							_myPlayer.SoundLocation = song.Location;
 							_myPlayer.PlaySync();
 						}
-						_playerSkin.Render("Конец списка");
 					}
 					else
 					{
 						_playing = true;
-						PrintColoredSong(Songs.First());
-						//System.Threading.Thread.Sleep(500);
+
+						SongStartedEvent(this);
 						_myPlayer.SoundLocation = Songs.First().Location;
 						_myPlayer.PlaySync();
 					}
 				}
-				catch (System.InvalidOperationException)
+				else
 				{
-					_playerSkin.Render($"Плейлист пустой. Добавьте песни");
+					ErrorEvent(this, "Плейлист пустой");
 				}
 			}
 			else
 			{
-				_playerSkin.Render("Нельзя запустить плеер. Он заблокирован");
+				BlockError();
 			}
 			return _playing;
 		}
@@ -156,11 +157,12 @@ namespace MusicPlayer
 			if(!_locked)
 			{
 				_playing = false;
-				_playerSkin.Render("Плеер остановлен");
+
+				PlayerStoppedEvent(this);
 			}
 			else
 			{
-				_playerSkin.Render("Нельзя остановить плеер. Он заблокирован");
+				BlockError();
 			}
 			return _playing;
 		}
@@ -168,18 +170,23 @@ namespace MusicPlayer
 		public void Lock()
 		{
 			_locked = true;
-			_playerSkin.Render("Плеер заблокирован");
+			PlayerLockEvent(this);
 		}
 
 		public void Unlock()
 		{
 			_locked = false;
-			_playerSkin.Render("Плеер разблокирован");
+			PlayerLockEvent(this);
 		}
 
-		private void BlockVolumeChange()
+		public bool IsLocked()
 		{
-			_playerSkin.Render("Нельзя изменить громкость. Плеер заблокирован");
+			return _locked ? true : false;
+		}
+
+		private void BlockError()
+		{
+			ErrorEvent(this, "Плеер заблокирован");
 		}
 
 		private void Add(params Song[] arrOfSongs)
@@ -188,88 +195,37 @@ namespace MusicPlayer
 			{
 				Songs.Add(songItem);
 			}
+			SongListChangedEvent(this);
 		}
 
 		public void Clear()
 		{
 			Songs.Clear();
-		}
-
-		public void SongInfo(Song CurrentSong)
-		{
-			_playerSkin.Render($"Artist: {CurrentSong.Artist.Name}");
-			_playerSkin.Render($"Song: {CurrentSong.Name}");
-			_playerSkin.Render($"Duration: {CurrentSong.Duration}");
-			_playerSkin.Render($"Album: {CurrentSong.Album.Name}");
-			_playerSkin.Render($"Year: {CurrentSong.Album.Year}");
-			_playerSkin.Render($"Genre: {CurrentSong.Artist.Genre}");
-			if (CurrentSong.Like == null)
-			{
-				_playerSkin.Render($"Liked: undefined\n");
-			}
-			else if (CurrentSong.Like == true)
-			{
-				_playerSkin.Render($"Liked: yes\n");
-			}
-			else
-			{
-				_playerSkin.Render($"Liked: no\n");
-			}
+			SongListChangedEvent(this);
 		}
 
 		public void ShowAllSongsInfo()
 		{
-			int songNumber = 1;
-			foreach (var song in Songs)
-			{
-				_playerSkin.Render($"№{songNumber++}");
-				SongInfo(song);
-			}
+			ShowAllSongsInfoEvent(this);
 		}
 
 		public void ShowAllSongsName()
 		{
-			foreach (var song in Songs)
-			{
-				_playerSkin.Render($"Song: {song.Name}");
-			}
-			_playerSkin.Render();
+			ShowAllSongsNameEvent(this);
 		}
+
 
 		public void Shuffle()
 		{
 			this.Songs = this.Songs.Shuffle();
+			SongListChangedEvent(this);
 		}
 
 		public void SortByTitle()
 		{
 			this.Songs = this.Songs.SortByTitle();
+			SongListChangedEvent(this);
 		}
-
-		private void PrintColoredSong(Song tmpSong)
-		{
-			if (tmpSong.Like == true)
-			{
-				Console.ForegroundColor = ConsoleColor.Green;
-			}
-			else if (tmpSong.Like == false)
-			{
-				Console.ForegroundColor = ConsoleColor.Red;
-			}
-
-			_playerSkin.Render($"Playing: {tmpSong.Name}\nGenre: {tmpSong.Artist.Genre}\n" + $"Duration: {tmpSong.Duration}\n");
-			Console.ResetColor();
-		}
-
-/*		private Song SongShorten(Song srcSong)
-		{
-			const int stringLimit = 10;
-
-			Song tmpSong = srcSong;
-			tmpSong.Name = tmpSong.Name.StringShorten(stringLimit);
-
-			return tmpSong;
-		}*/
 
 		public void FilterByGenre(string filterGenre)
 		{
@@ -283,6 +239,7 @@ namespace MusicPlayer
 				}
 			}
 			Songs = tmpList;
+			SongListChangedEvent(this);
 		}
 		
 		public int LoadFiles(string dirPath)
@@ -290,7 +247,7 @@ namespace MusicPlayer
 			//Если папки нет - выход
 			if (!Directory.Exists(dirPath))
 			{
-				Console.WriteLine("Папки не существует");
+				ErrorEvent(this, "Папки не существует");
 				return 0;
 			}
 
@@ -299,7 +256,7 @@ namespace MusicPlayer
 			var fileList = newDir.GetFiles("*.wav");
 			if (fileList.Length == 0)
 			{
-				Console.WriteLine(".wav файлы не найдены");
+				ErrorEvent(this, ".wav файлы не найдены");
 				return 0;
 			}
 
@@ -323,6 +280,7 @@ namespace MusicPlayer
 				newSong.Artist.Genre = file.Tag.Genres.StringArrToString("/") ?? newSong.Artist.Genre;
 				Songs.Add(newSong);
 			}
+			SongListChangedEvent(this);
 
 			return songsArr.Length;
 		}
@@ -348,7 +306,7 @@ namespace MusicPlayer
 			//Нет файла - выход
 			if (!File.Exists(filePath))
 			{
-				Console.WriteLine("Файл не найден");
+				ErrorEvent(this, "Файл не найден");
 				return;
 			}
 
@@ -357,9 +315,9 @@ namespace MusicPlayer
 			{
 				Songs = (List<Song>)tmpSrlzr.Deserialize(xmlReader);
 			}
+			SongListChangedEvent(this);
 		}
 
-		//копипаста
 		//Implement IDisposable.
 		public void Dispose()
 		{
@@ -373,12 +331,11 @@ namespace MusicPlayer
 				if (disposing)
 				{
 					// Free other state (managed objects).
-					this._myPlayer.Dispose();
 					this._myPlayer = null;
-					this._playerSkin = null;
 					this.Songs = null;
 				}
 				// Free your own state (unmanaged objects).
+				this._myPlayer.Dispose();
 				_disposed = true;
 			}
 		}
