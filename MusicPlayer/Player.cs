@@ -144,11 +144,13 @@ namespace MusicPlayer
 			return;
 		}
 
-		/* Когда вводу stop, плеер не будет воспроизводить следующую песню, а текущую
+		/* Когда ввожу stop, плеер не будет воспроизводить следующую песню, а текущую
 		 * не остановит.
 		 * Переписать на тред, т.к. таск по своей природе один раз запускается и отрабатывает
 		 * до победного => на паузу воспроизведение не поставить
 		 */
+
+		//LA8.Player2/2**. AsyncCommands.
 		private Task PlayOneAsync(Song song)
 		{
 			return Task.Run(() =>
@@ -156,6 +158,7 @@ namespace MusicPlayer
 				PlayerStartedEvent(this, song);
 				_myPlayer.SoundLocation = song.Location;
 
+				//AL5 - Player1 / 2.ExceptionHandling.
 				try
 				{
 					try
@@ -188,6 +191,7 @@ namespace MusicPlayer
 			});
 		}
 
+		//AL5-Player1/2. CustomExceptions.
 		public class PlayerException : Exception
 		{
 			public PlayerException()
