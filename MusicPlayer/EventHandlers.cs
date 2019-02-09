@@ -15,6 +15,20 @@ namespace MusicPlayer
 			DrawErrMessage(errorMsg);
 		}
 
+		public static void OnErrorEventHandler(string errorMsg)
+		{
+			Console.ForegroundColor = ConsoleColor.Red;
+			Console.WriteLine(errorMsg);
+			Console.ResetColor();
+		}
+
+		public static void OnWarningEventHandler(string errorMsg)
+		{
+			Console.ForegroundColor = ConsoleColor.Yellow;
+			Console.WriteLine(errorMsg);
+			Console.ResetColor();
+		}
+
 		public static void PlayerLockEventHandler(Player player)
 		{
 			bool isLocked = player.IsLocked();

@@ -19,6 +19,8 @@ namespace MusicPlayer
 			using (var player = new Player())
 			{
 				player.ErrorEvent += ErrorEventHandler;
+				player.OnErrorEvent += OnErrorEventHandler;
+				player.OnWarningEvent += OnWarningEventHandler;
 				player.PlayerLockEvent += PlayerLockEventHandler;
 				player.PlayerStartedEvent += PlayerStartedEventHandler;
 				player.PlayerStoppedEvent += PlayerStoppedEventHandler;

@@ -8,12 +8,15 @@ using MusicPlayer.Extensions;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Media;
+using System.Runtime.Serialization;
 
 namespace MusicPlayer
 {
 	public class Player : IDisposable
 	{
 		public event Action<Player, string> ErrorEvent;
+		public event Action<string> OnErrorEvent;
+		public event Action<string> OnWarningEvent;
 		public event Action<Player> PlayerLockEvent;
 		public event Action<Player, Song> PlayerStartedEvent;
 		public event Action<Player> PlayerStoppedEvent;
@@ -152,8 +155,73 @@ namespace MusicPlayer
 			{
 				PlayerStartedEvent(this, song);
 				_myPlayer.SoundLocation = song.Location;
-				_myPlayer.PlaySync();
+
+				try
+				{
+					try
+					{
+						_myPlayer.PlaySync();
+					}
+					catch (System.InvalidOperationException ex)
+					{
+						_playing = false;
+						//OnErrorEvent(ex.Message);
+						throw new FailedToPlayException($"Failed to play {song.Location} file");
+					}
+					catch (System.IO.FileNotFoundException ex)
+					{
+						_playing = false;
+						//OnErrorEvent(ex.Message);
+						throw new FailedToPlayException($"Failed to play {song.Location} file");
+					}
+				}
+				catch (FailedToPlayException ex)
+				{
+					_playing = false;
+					OnWarningEvent(ex.Message);
+				}
+				catch (System.Exception ex)
+				{
+					_playing = false;
+					OnErrorEvent(ex.Message);
+				}
 			});
+		}
+
+		public class PlayerException : Exception
+		{
+			public PlayerException()
+			{
+			}
+
+			public PlayerException(string message)
+					: base(message)
+			{
+			}
+
+			public PlayerException(string message, Exception inner)
+					: base(message, inner)
+			{
+			}
+		}
+
+		public class FailedToPlayException : PlayerException
+		{
+			public string path { get; set; }
+
+			public FailedToPlayException()
+			{
+			}
+
+			public FailedToPlayException(string message)
+					: base(message)
+			{
+			}
+
+			public FailedToPlayException(string message, Exception inner)
+					: base(message, inner)
+			{
+			}
 		}
 
 		//public void Play()
@@ -347,11 +415,11 @@ namespace MusicPlayer
 				if (disposing)
 				{
 					// Free other state (managed objects).
-					this._myPlayer = null;
 					this.Songs = null;
 				}
 				// Free your own state (unmanaged objects).
 				this._myPlayer.Dispose();
+				this._myPlayer = null;
 				_disposed = true;
 			}
 		}
