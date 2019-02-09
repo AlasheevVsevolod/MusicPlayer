@@ -116,28 +116,17 @@ namespace MusicPlayer
 			}
 		}
 
-		public bool Start(bool loop = false)
+		public async void Start()
 		{
 			if(!_locked)
 			{
 				if(Songs.Count > 0)
 				{
-					if (loop)
+					_playing = true;
+					foreach (var song in Songs)
 					{
-						foreach (var song in Songs)
-						{
-							PlayerStartedEvent(this, song);
-							_myPlayer.SoundLocation = song.Location;
-							_myPlayer.PlaySync();
-						}
-					}
-					else
-					{
-						_playing = true;
-
-						SongStartedEvent(this);
-						_myPlayer.SoundLocation = Songs.First().Location;
-						_myPlayer.PlaySync();
+						if (!_playing) return;
+						await PlayOneAsync(song);
 					}
 				}
 				else
@@ -149,22 +138,49 @@ namespace MusicPlayer
 			{
 				BlockError();
 			}
-			return _playing;
+			return;
 		}
 
-		public bool Stop()
+		/* Когда вводу stop, плеер не будет воспроизводить следующую песню, а текущую
+		 * не остановит.
+		 * Переписать на тред, т.к. таск по своей природе один раз запускается и отрабатывает
+		 * до победного => на паузу воспроизведение не поставить
+		 */
+		private Task PlayOneAsync(Song song)
+		{
+			return Task.Run(() =>
+			{
+				PlayerStartedEvent(this, song);
+				_myPlayer.SoundLocation = song.Location;
+				_myPlayer.PlaySync();
+			});
+		}
+
+		//public void Play()
+		//{
+		//	if (!_locked)
+		//	{
+		//		_playing = true;
+		//	}
+		//	else
+		//	{
+		//		BlockError();
+		//	}
+		//	return;
+		//}
+
+		public void Stop()
 		{
 			if(!_locked)
 			{
 				_playing = false;
-
 				PlayerStoppedEvent(this);
 			}
 			else
 			{
 				BlockError();
 			}
-			return _playing;
+			return;
 		}
 
 		public void Lock()
