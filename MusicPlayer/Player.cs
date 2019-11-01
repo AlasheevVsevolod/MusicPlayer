@@ -8,12 +8,15 @@ using MusicPlayer.Extensions;
 using System.Xml;
 using System.Xml.Serialization;
 using System.Media;
+using System.Runtime.Serialization;
 
 namespace MusicPlayer
 {
 	public class Player : IDisposable
 	{
 		public event Action<Player, string> ErrorEvent;
+		public event Action<string> OnErrorEvent;
+		public event Action<string> OnWarningEvent;
 		public event Action<Player> PlayerLockEvent;
 		public event Action<Player, Song> PlayerStartedEvent;
 		public event Action<Player> PlayerStoppedEvent;
@@ -116,28 +119,17 @@ namespace MusicPlayer
 			}
 		}
 
-		public bool Start(bool loop = false)
+		public async void Start()
 		{
 			if(!_locked)
 			{
 				if(Songs.Count > 0)
 				{
-					if (loop)
+					_playing = true;
+					foreach (var song in Songs)
 					{
-						foreach (var song in Songs)
-						{
-							PlayerStartedEvent(this, song);
-							_myPlayer.SoundLocation = song.Location;
-							_myPlayer.PlaySync();
-						}
-					}
-					else
-					{
-						_playing = true;
-
-						SongStartedEvent(this);
-						_myPlayer.SoundLocation = Songs.First().Location;
-						_myPlayer.PlaySync();
+						if (!_playing) return;
+						await PlayOneAsync(song);
 					}
 				}
 				else
@@ -149,22 +141,118 @@ namespace MusicPlayer
 			{
 				BlockError();
 			}
-			return _playing;
+			return;
 		}
 
-		public bool Stop()
+		/* Когда ввожу stop, плеер не будет воспроизводить следующую песню, а текущую
+		 * не остановит.
+		 * Переписать на тред, т.к. таск по своей природе один раз запускается и отрабатывает
+		 * до победного => на паузу воспроизведение не поставить
+		 */
+
+		//LA8.Player2/2**. AsyncCommands.
+		private Task PlayOneAsync(Song song)
+		{
+			return Task.Run(() =>
+			{
+				PlayerStartedEvent(this, song);
+				_myPlayer.SoundLocation = song.Location;
+
+				//AL5 - Player1 / 2.ExceptionHandling.
+				try
+				{
+					try
+					{
+						_myPlayer.PlaySync();
+					}
+					catch (System.InvalidOperationException ex)
+					{
+						_playing = false;
+						//OnErrorEvent(ex.Message);
+						throw new FailedToPlayException($"Failed to play {song.Location} file");
+					}
+					catch (System.IO.FileNotFoundException ex)
+					{
+						_playing = false;
+						//OnErrorEvent(ex.Message);
+						throw new FailedToPlayException($"Failed to play {song.Location} file");
+					}
+				}
+				catch (FailedToPlayException ex)
+				{
+					_playing = false;
+					OnWarningEvent(ex.Message);
+				}
+				catch (System.Exception ex)
+				{
+					_playing = false;
+					OnErrorEvent(ex.Message);
+				}
+			});
+		}
+
+		//AL5-Player1/2. CustomExceptions.
+		public class PlayerException : Exception
+		{
+			public PlayerException()
+			{
+			}
+
+			public PlayerException(string message)
+					: base(message)
+			{
+			}
+
+			public PlayerException(string message, Exception inner)
+					: base(message, inner)
+			{
+			}
+		}
+
+		public class FailedToPlayException : PlayerException
+		{
+			public string path { get; set; }
+
+			public FailedToPlayException()
+			{
+			}
+
+			public FailedToPlayException(string message)
+					: base(message)
+			{
+			}
+
+			public FailedToPlayException(string message, Exception inner)
+					: base(message, inner)
+			{
+			}
+		}
+
+		//public void Play()
+		//{
+		//	if (!_locked)
+		//	{
+		//		_playing = true;
+		//	}
+		//	else
+		//	{
+		//		BlockError();
+		//	}
+		//	return;
+		//}
+
+		public void Stop()
 		{
 			if(!_locked)
 			{
 				_playing = false;
-
 				PlayerStoppedEvent(this);
 			}
 			else
 			{
 				BlockError();
 			}
-			return _playing;
+			return;
 		}
 
 		public void Lock()
@@ -331,11 +419,11 @@ namespace MusicPlayer
 				if (disposing)
 				{
 					// Free other state (managed objects).
-					this._myPlayer = null;
 					this.Songs = null;
 				}
 				// Free your own state (unmanaged objects).
 				this._myPlayer.Dispose();
+				this._myPlayer = null;
 				_disposed = true;
 			}
 		}

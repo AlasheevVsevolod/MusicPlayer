@@ -19,6 +19,8 @@ namespace MusicPlayer
 			using (var player = new Player())
 			{
 				player.ErrorEvent += ErrorEventHandler;
+				player.OnErrorEvent += OnErrorEventHandler;
+				player.OnWarningEvent += OnWarningEventHandler;
 				player.PlayerLockEvent += PlayerLockEventHandler;
 				player.PlayerStartedEvent += PlayerStartedEventHandler;
 				player.PlayerStoppedEvent += PlayerStoppedEventHandler;
@@ -90,19 +92,26 @@ namespace MusicPlayer
 							player.Lock();
 							break;
 
-						case "p":
-						case "play":
-							player.Start(true);
-							break;
-
-						case "po":
-						case "playone":
-							player.Start(false);
-							break;
+						//case "p":
+						//case "play":
+						//	player.Play();
+						//	break;
 
 						case "q":
 						case "quit":
 							playerWorking = false;
+							break;
+
+						case "sv":
+						case "save":
+							if (!isCmdParamsExists)
+							{
+								Console.WriteLine("SaVe [path] - сохранить список");
+								break;
+							}
+
+							player.SavePlaylist(cmdParameter);
+							Console.WriteLine("Список сохранен");
 							break;
 
 						case "sh":
@@ -121,22 +130,18 @@ namespace MusicPlayer
 							player.ShowAllSongsName();
 							break;
 
-						case "sv":
-						case "save":
-							if (!isCmdParamsExists)
-							{
-								Console.WriteLine("SaVe [path] - сохранить список");
-								break;
-							}
-
-							player.SavePlaylist(cmdParameter);
-							Console.WriteLine("Список сохранен");
-							break;
-
 						case "sr":
 						case "sort":
 							player.SortByTitle();
 							Console.WriteLine("Список отсортирован");
+							break;
+
+						case "start":
+							player.Start();
+							break;
+
+						case "stop":
+							player.Stop();
 							break;
 
 						case "vc":
@@ -180,14 +185,15 @@ namespace MusicPlayer
 			Console.WriteLine("Help - поддерживаемые комманды");
 			Console.WriteLine("LoaD [path] - загрузить список");
 			Console.WriteLine("LocK - заблокировать плеер");
-			Console.WriteLine("Play - проиграть весь список");
-			Console.WriteLine("PlayOne - проиграть первую(пока) песню");
+			//Console.WriteLine("Play - проиграть весь список");
 			Console.WriteLine("Quit - выйти из программы");
 			Console.WriteLine("SaVe [path] - сохранить список");
 			Console.WriteLine("SHuffle - перемешать список");
 			Console.WriteLine("SongsInfo - информация по каждой песне");
 			Console.WriteLine("SongsName - название каждой песне");
 			Console.WriteLine("SoRt - сортировать список по названию песни");
+			Console.WriteLine("start - проиграть список сначала");
+			Console.WriteLine("stop - приостановить воспроизведение");
 			Console.WriteLine("Unlock - разблокировать плеер");
 			Console.WriteLine("VolumeChange [value] - изменить громкость на заданное значение");
 			Console.WriteLine("VolumeDown - уменьшить громкость на 1%");
